@@ -14,4 +14,5 @@
 
     <integer name="num_cols">1</integer>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="home_grid_size">450dp</dimen>
 </resources>

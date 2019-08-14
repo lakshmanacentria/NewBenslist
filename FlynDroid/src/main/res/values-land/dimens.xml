@@ -8,6 +8,7 @@
     <dimen name="max_content_width">450dp</dimen>
     <dimen name="bool_field_name_width">160dp</dimen>
     <dimen name="pictures_grid_column_width">160dip</dimen>
+    <dimen name="home_grid_size">400dp</dimen>
 
     <integer name="num_cols">1</integer>
 </resources>

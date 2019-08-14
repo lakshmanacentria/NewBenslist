@@ -235,6 +235,7 @@ public class ChatinPostActivity extends AppCompatActivity implements View.OnClic
                     Log.e(TAG, "onClick: no message type than can't be send button");
                     if (Utils.isOnline(this)) {
                         call_sendmessage_Api(et_send_massage.getText().toString());
+                        Utils.hideKeyboard(et_send_massage);
                     } else {
                         Toast.makeText(ChatinPostActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
                     }
@@ -318,9 +319,12 @@ public class ChatinPostActivity extends AppCompatActivity implements View.OnClic
                                         chatpojo.setUserMessage(newlist.get(0).getUserMessage());
                                         chatpojo.setMerchantMessage(newlist.get(0).getMerchantMessage());
                                         list.add(chatpojo);
+
+                                        Log.e(TAG, "run: list size after set data in pojo " + list.size());
                                         if (list.size() > 0) {
 
                                             if (list.size() == 1) {
+                                                rv_recyclerviw.setVisibility(View.VISIBLE);
                                                 adapter = new ChatOnPostAdatper(ChatinPostActivity.this, list, is_chat_byer);
                                                 rv_recyclerviw.setLayoutManager(new LinearLayoutManager(ChatinPostActivity.this));
                                                 rv_recyclerviw.setAdapter(adapter);
@@ -333,14 +337,15 @@ public class ChatinPostActivity extends AppCompatActivity implements View.OnClic
                                                 Log.e(TAG, "run: list size >0 " + list.size());
                                             }
 
-                                        } else {
-                                            adapter = new ChatOnPostAdatper(ChatinPostActivity.this, list, is_chat_byer);
-                                            rv_recyclerviw.setLayoutManager(new LinearLayoutManager(ChatinPostActivity.this));
-                                            rv_recyclerviw.setAdapter(adapter);
-                                            adapter.notifyDataSetChanged();
-
-                                            Log.e(TAG, "run: list size ==0 " + list.size());
                                         }
+//                                        else {
+//                                            adapter = new ChatOnPostAdatper(ChatinPostActivity.this, list, is_chat_byer);
+//                                            rv_recyclerviw.setLayoutManager(new LinearLayoutManager(ChatinPostActivity.this));
+//                                            rv_recyclerviw.setAdapter(adapter);
+//                                            adapter.notifyDataSetChanged();
+//
+//                                            Log.e(TAG, "run: list size ==0 " + list.size());
+//                                        }
 
 
                                     }

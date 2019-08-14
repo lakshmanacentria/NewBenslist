@@ -247,6 +247,7 @@ public class ChatHistoryActivity extends AppCompatActivity implements View.OnCli
                     Log.e(TAG, "onClick: no message type than can't be send button");
                     if (Utils.isOnline(this)) {
                         call_sendmessage_Api(et_send_massage.getText().toString());
+                        Utils.hideKeyboard(et_send_massage);
                     } else {
                         Toast.makeText(ChatHistoryActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
                     }
@@ -328,9 +329,25 @@ public class ChatHistoryActivity extends AppCompatActivity implements View.OnCli
                                         chatpojo.setUserMessage(newlist.get(0).getUserMessage());
                                         chatpojo.setMerchantMessage(newlist.get(0).getMerchantMessage());
                                         list.add(chatpojo);
-                                        adapter = new ChatMessageAdatper(ChatHistoryActivity.this, list, is_chat_byer); /**/
-                                        adapter.notifyItemInserted(list.size() - 1);
-                                        rv_recyclerviw.scrollToPosition(adapter.getItemCount() - 1);
+
+                                        Log.e(TAG, "run: list size atfer set pojo " + list.size());
+                                        if (list.size() > 0) {
+                                            if (list.size() == 1) {
+                                                rv_recyclerviw.setVisibility(View.VISIBLE);
+                                                adapter = new ChatMessageAdatper(ChatHistoryActivity.this, list, is_chat_byer);
+                                                rv_recyclerviw.setLayoutManager(new LinearLayoutManager(ChatHistoryActivity.this));
+                                                rv_recyclerviw.setAdapter(adapter);
+                                                adapter.notifyDataSetChanged();
+                                                Log.e(TAG, "run: send frist massage show in adatper " + list.size());
+                                            } else {
+                                                adapter = new ChatMessageAdatper(ChatHistoryActivity.this, list, is_chat_byer); /**/
+                                                adapter.notifyItemInserted(list.size() - 1);
+                                                rv_recyclerviw.scrollToPosition(adapter.getItemCount() - 1);
+                                                Log.e(TAG, "run: send frist massage show in at last possition on adatper " + list.size());
+
+                                            }
+                                        }
+
 
                                     }
                                 });

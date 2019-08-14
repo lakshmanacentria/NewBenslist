@@ -52,6 +52,14 @@
 					android:gravity="center"
 					android:layout_weight="1"
 					style="@style/whitebold_caption" />
+
+				<ImageView
+					android:id="@+id/icon_call"
+					android:src="@mipmap/call_ic"
+					android:layout_width="30dp"
+					android:layout_height="30dp"
+					android:layout_gravity="center|center_vertical"
+					style="@style/details_header_icon" />
 				<ImageView
 			        android:id="@+id/icon_comments"
 			        android:src="@mipmap/details_icon_comments"

@@ -1,9 +1,11 @@
 package com.acentria.benslist;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -42,17 +44,20 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.JsonIOException;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.viewpagerindicator.TabPageIndicator;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -61,6 +66,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class ListingDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
     public static ListingDetailsActivity instance;
@@ -99,7 +111,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
     public static LinearLayout see_more_view;
     public static Button add_comment_button;
     public static TextView see_more_comments;
-    private String TAG = "ListingDetailsActivity=> ";
+    private static String TAG = "ListingDetailsActivity=> ";
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -615,7 +627,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
      *
      * @param pager - pager to find layout
      */
-    public static void drawListingDetails(ViewPager pager) {
+    public void drawListingDetails(ViewPager pager) {
         LinearLayout detailsContainer = (LinearLayout) pager.findViewWithTag("details");
 
         if (detailsContainer == null)
@@ -638,10 +650,30 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         price.setText(listingData.get("price"));
         /*implement Chat textview to implement chat process start*/
         TextView tv_chat = (TextView) details.findViewById(R.id.tv_chat);
-
+        ImageView icon_call = (ImageView) details.findViewById(R.id.icon_call);
         if (Utils.getSPConfig("accountUsername", "") != "" && Utils.getSPConfig("accountUsername", "") != null) {
-            tv_chat.setVisibility(View.VISIBLE);
+
+            if (Lang.get("android_title_activity_listing_details").equalsIgnoreCase("Ad Details")) {
+                tv_chat.setVisibility(View.VISIBLE);
+                icon_call.setVisibility(View.VISIBLE);
+                Log.e(TAG, "drawListingDetails:chat visible bcz you are comes from > " + Lang.get("android_title_activity_listing_details"));
+            }
         }
+
+        icon_call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Utils.isOnline(instance)) {
+
+                    call_getContactApi();
+                } else {
+                    Toast.makeText(instance, instance.getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+
+
         tv_chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -864,6 +896,99 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                 Utils.setSPConfig("favoriteIDs", favoriteIDs);
             }
         });
+    }
+
+    private void call_getContactApi() {
+        final ProgressDialog progressDialog = new ProgressDialog(instance);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMessage("Loading...");
+        Log.e(TAG, "call_getContactApi: " + intent.getStringExtra("id"));
+        if (intent.getStringExtra("id").isEmpty()) {
+            return;
+        }
+        OkHttpClient okHttpClient = new OkHttpClient();
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("postid", intent.getStringExtra("id"))
+                .build();
+        final Request request = new Request.Builder()
+                .url("https://www.benslist.com/Api/Account/phone_number.inc.php")
+                .post(requestBody)
+                .build();
+        progressDialog.show();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        Log.e(TAG, "error");
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+
+                    if (response.isSuccessful()) {
+                        final String respo = response.body().string();
+                        Log.e(TAG, "onResponse: " + respo);
+                      /* JSONObject jsonObject=new JSONObject(response.body().toString());
+                       Log.e(TAG, jsonObject.getString("phone"));*/
+
+                        if (!respo.equalsIgnoreCase("[]")) {
+                            try {
+                                final JSONArray itemArray = new JSONArray(respo);
+                                JSONObject jsonObject = itemArray.getJSONObject(0);
+                                final String phone = jsonObject.getString("phone");
+
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        progressDialog.dismiss();
+                                        Log.e(TAG, "run: " + phone);
+                                        call_dailpaid(phone);
+
+                                    }
+                                });
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressDialog.dismiss();
+                                    Log.e(TAG, "onResponse: return [] " + respo);
+                                }
+                            });
+
+                        }
+
+                    } else {
+                        progressDialog.dismiss();
+                        Log.e(TAG, "onResponse: unscuss");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+    }
+
+    private void call_dailpaid(String phone) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phone));
+        Config.context.startActivity(intent);
     }
 
     /**

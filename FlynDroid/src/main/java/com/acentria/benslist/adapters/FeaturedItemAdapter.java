@@ -27,109 +27,109 @@ import java.util.HashMap;
 
 public class FeaturedItemAdapter extends BaseAdapter implements OnItemClickListener {
 
-    private final String TAG="FeaturedItemAdapter";
+    private final String TAG = "FeaturedItemAdapter";
     private ArrayList<HashMap<String, String>> listings = new ArrayList<HashMap<String, String>>();
-	
-	public FeaturedItemAdapter(ArrayList<HashMap<String, String>> insertElements) {
-		listings = insertElements;
-        Log.e(TAG, "FeaturedItemAdapter: constructor " +insertElements.toString() );
-	}
 
-	@Override
-	public void onItemClick(AdapterView<?> gridView, View itemView, int position, long longItemId) {
-		Intent intent = new Intent(Config.context, ListingDetailsActivity.class);
-		intent.putExtra("id", listings.get(position).get("id"));
-		Config.context.startActivity(intent);
-		Log.e(TAG, "onItemClick: " +"id" +listings.get(position).get("id"));
-	}
-	
-	private class ViewHolder {
-		public LinearLayout listingItem;
-		public TextView titleText;
-		public TextView priceText;
-		public ImageView image;
-	}
-	
-	public void add(ArrayList<HashMap<String, String>> nextListings)
-	{
-		for (int i = 0; i < nextListings.size(); i++ )
-		{
-			listings.add(nextListings.get(i));
-		}
-	    notifyDataSetChanged();
-	}
-	
-	@Override
-	public int getCount() {
-		return listings.size();
-	}
+    public FeaturedItemAdapter(ArrayList<HashMap<String, String>> insertElements) {
+        listings = insertElements;
+        Log.e(TAG, "FeaturedItemAdapter: constructor " + insertElements.toString());
+    }
 
-	@Override
-	public Object getItem(int position) {
-		return position;
-	}
+    @Override
+    public void onItemClick(AdapterView<?> gridView, View itemView, int position, long longItemId) {
+        Intent intent = new Intent(Config.context, ListingDetailsActivity.class);
+        intent.putExtra("id", listings.get(position).get("id"));
+//		intent.putExtra("is_featureitems","is_chat_visible");
+        Config.context.startActivity(intent);
+        Log.e(TAG, "onItemClick: " + "id" + listings.get(position).get("id"));
+    }
 
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
+    private class ViewHolder {
+        public LinearLayout listingItem;
+        public TextView titleText;
+        public TextView priceText;
+        public ImageView image;
+    }
 
-	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		
-		View view = convertView;
-		ViewHolder holder;
-		
-		if ( view == null ) {			
-			view = Config.context.getLayoutInflater().inflate(R.layout.featured, null);
-			holder = new ViewHolder();
+    public void add(ArrayList<HashMap<String, String>> nextListings) {
+        for (int i = 0; i < nextListings.size(); i++) {
+            listings.add(nextListings.get(i));
+        }
+        notifyDataSetChanged();
+    }
 
-			holder.titleText = (TextView) view.findViewById(R.id.featured_title);
-			holder.priceText = (TextView) view.findViewById(R.id.featured_price);
-			holder.image = (ImageView) view.findViewById(R.id.thumbnail_image);
-			
-			view.setTag(holder);
-		}
-		else {
-			holder = (ViewHolder) view.getTag();
-		}
-						
-		HashMap<String, String> listing = listings.get(position);
-		
-		/* set text values */
-		holder.titleText.setText(listing.get("title"));
-		holder.priceText.setText(listing.get("price"));
+    @Override
+    public int getCount() {
+        return listings.size();
+    }
 
-		/* load image to list (AsyncTask) */
-		if ( !listing.get("photo").isEmpty() ){
-			ImageAware imageAware = new ImageViewAware(holder.image, false);
-			Utils.imageLoaderFeatured.displayImage(listing.get("photo"), imageAware, Utils.imageLoaderOptionsFeatured, new ImageLoadingListener() {
-				@Override
-				public void onLoadingStarted(String imageUri, View view) {}
+    @Override
+    public Object getItem(int position) {
+        return position;
+    }
 
-				@Override
-				public void onLoadingFailed(String imageUri, View view, FailReason failReason) {}
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
-				@Override
-				public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-					RelativeLayout parent = (RelativeLayout) view.getParent();
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+
+        View view = convertView;
+        ViewHolder holder;
+
+        if (view == null) {
+            view = Config.context.getLayoutInflater().inflate(R.layout.featured, null);
+            holder = new ViewHolder();
+
+            holder.titleText = (TextView) view.findViewById(R.id.featured_title);
+            holder.priceText = (TextView) view.findViewById(R.id.featured_price);
+            holder.image = (ImageView) view.findViewById(R.id.thumbnail_image);
+
+            view.setTag(holder);
+        } else {
+            holder = (ViewHolder) view.getTag();
+        }
+
+        HashMap<String, String> listing = listings.get(position);
+
+        /* set text values */
+        holder.titleText.setText(listing.get("title"));
+        holder.priceText.setText(listing.get("price"));
+
+        /* load image to list (AsyncTask) */
+        if (!listing.get("photo").isEmpty()) {
+            ImageAware imageAware = new ImageViewAware(holder.image, false);
+            Utils.imageLoaderFeatured.displayImage(listing.get("photo"), imageAware, Utils.imageLoaderOptionsFeatured, new ImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    RelativeLayout parent = (RelativeLayout) view.getParent();
 //					Animation fadeIn = new AlphaAnimation(0, 1);
 //				    fadeIn.setDuration(500);
 //				    fadeIn.setFillAfter(true);
-					parent.findViewById(R.id.listing_info_container).setVisibility(View.VISIBLE);
-				}
+                    parent.findViewById(R.id.listing_info_container).setVisibility(View.VISIBLE);
+                }
 
-				@Override
-				public void onLoadingCancelled(String imageUri, View view) {}
-			 
-			});
-		}
-		else {
-			RelativeLayout parentCont = (RelativeLayout) holder.image.getParent();
-			holder.image.setImageResource(R.mipmap.no_image);
-			parentCont.findViewById(R.id.listing_info_container).setVisibility(View.VISIBLE);
-		}
-		
-		return view;
-	}
+                @Override
+                public void onLoadingCancelled(String imageUri, View view) {
+                }
+
+            });
+        } else {
+            RelativeLayout parentCont = (RelativeLayout) holder.image.getParent();
+            holder.image.setImageResource(R.mipmap.no_image);
+            parentCont.findViewById(R.id.listing_info_container).setVisibility(View.VISIBLE);
+        }
+
+        return view;
+    }
 }
