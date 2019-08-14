@@ -1,0 +1,82 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion '26.0.1'
+//    buildToolsVersion "23.0.2"
+    defaultConfig {
+        applicationId "com.acentria.benslist"
+        minSdkVersion 14
+        targetSdkVersion 26
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+allprojects {
+    repositories {
+        jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
+    }
+}
+
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile project(':ImageGallery')
+    compile project(':SlidingMenu')
+    compile project(':viewpagerindicator')
+    //    compile 'com.google.android.gms:play-services:11.0.4'
+    compile files('libs/PayPalAndroidSDK-2.6.0.jar')
+    compile files('libs/YouTubeAndroidPlayerApi.jar')
+    compile files('libs/additionnal.jar')
+    compile files('libs/mail.jar')
+    compile files('libs/PayPal_MPL.jar')
+    compile files('libs/libGoogleAnalyticsServices.jar')
+    //noinspection GradleCompatible
+    compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
+    compile 'com.android.support:support-v4:26.0.0-alpha1'
+    compile 'com.google.gms:google-services:3.0.0'
+    compile 'com.google.android.gms:play-services-gcm:11.2.0'
+    compile 'com.google.android.gms:play-services-maps:11.2.0'
+    compile 'com.google.android.gms:play-services-ads:11.2.0'
+    compile 'com.google.android.gms:play-services-places:11.2.0'
+    compile 'com.google.android.gms:play-services-location:11.2.0'
+    compile 'com.facebook.android:facebook-android-sdk:4.5.0'
+    compile 'com.loopj.android:android-async-http:1.4.9'
+
+    /*Imge networking liabarary*/
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+    /*cricleimagview*/
+    implementation 'de.hdodenhof:circleimageview:3.0.0'
+    //    Api caling Laibray
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.4.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    /*Crop image*/
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.2.+'
+    /*paypal sdk*/
+//    implementation 'com.paypal.sdk:paypal-android-sdk:2.16.0'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    implementation 'com.synnapps:carouselview:0.1.5'
+    compile 'com.google.maps.android:android-maps-utils:0.4.3'
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:design:26.+'
+    testCompile 'junit:junit:4.12'
+}
