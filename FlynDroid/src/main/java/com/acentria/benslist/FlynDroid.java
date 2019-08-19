@@ -262,11 +262,11 @@ public class FlynDroid extends SlidingActivity {
 
         if (requestCode == 2222) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Home.updateMapHost(true);
+//                Home.updateMapHost(true);
             } else {
                 // Permission Denied
                 Toast.makeText(Config.context, "Permission Denied", Toast.LENGTH_LONG).show();
-                Home.updateMapHost(false);
+//                Home.updateMapHost(false);
             }
             return;
         }

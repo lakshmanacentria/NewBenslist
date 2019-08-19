@@ -9,47 +9,42 @@
     <LinearLayout
         android:id="@+id/featured_container"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical"
-        android:layout_alignBottom="@+id/featured_shadow">
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/featured_shadow"
+        android:orientation="vertical">
 
 
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swiperefresh"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
 
+            >
 
+            <!--inmplement horizonal viewpager-->
 
-            <android.support.v4.widget.SwipeRefreshLayout
-                android:id="@+id/swiperefresh"
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-
-                >
-
-                <!--inmplement horizonal viewpager-->
-
-                <android.support.v4.widget.NestedScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp">
-
+            <android.support.v4.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
 
 
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
                     <android.support.v4.view.ViewPager
+                        android:id="@+id/viewPager"
                         android:layout_width="match_parent"
                         android:layout_height="175dp"
-                        android:id="@+id/viewPager"
-                        android:layout_alignParentTop="true"
-                        />
+                        android:layout_alignParentTop="true" />
 
                     <View
                         android:id="@+id/view_layout"
                         android:layout_width="match_parent"
                         android:layout_height="3px"
-                        android:background="@android:color/white"
-                        />
+                        android:background="@android:color/white" />
 
                     <GridView
                         android:id="@+id/featured"
@@ -72,13 +67,10 @@
 
                 </LinearLayout>
 
-                </android.support.v4.widget.NestedScrollView>
+            </android.support.v4.widget.NestedScrollView>
 
 
-            </android.support.v4.widget.SwipeRefreshLayout>
-
-
-
+        </android.support.v4.widget.SwipeRefreshLayout>
 
 
         <LinearLayout
@@ -95,12 +87,14 @@
     <LinearLayout
         android:id="@+id/featured_shadow"
         android:layout_width="fill_parent"
-        android:layout_height="12dip"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/mapHost"
         android:background="@drawable/bottom_shadow"
-        android:orientation="vertical" />
+        android:orientation="vertical"
+        android:visibility="visible" />
 
     <LinearLayout
+        android:visibility="gone"
         android:id="@+id/bottom_adsense"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -111,46 +105,47 @@
     <RelativeLayout
         android:id="@+id/mapHost"
         android:layout_width="fill_parent"
-        android:layout_height="@dimen/map_host_height"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:gravity="bottom"
         android:clickable="true"
         android:drawSelectorOnTop="true"
+
+        android:gravity="bottom"
         android:orientation="vertical">
 
-        <fragment
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment" />
+        <!--<fragment-->
+            <!--android:id="@+id/map"-->
+            <!--android:name="com.google.android.gms.maps.SupportMapFragment"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1px" />-->
 
         <LinearLayout
             android:id="@+id/around_me"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
+            android:layout_height="50dp"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
             android:background="@color/transparent_dark_bar"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:paddingLeft="13dip"
                 android:paddingStart="13dip"
+                android:paddingLeft="13dip"
                 android:src="@mipmap/target" />
 
             <com.acentria.benslist.elements.FlyTextView
                 style="@style/featured_box_title"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:paddingBottom="11dip"
-                android:paddingLeft="10dip"
                 android:paddingStart="10dip"
-                android:paddingRight="15dip"
-                android:paddingEnd="15dip"
+                android:paddingLeft="10dip"
                 android:paddingTop="8dip"
+                android:paddingEnd="15dip"
+                android:paddingRight="15dip"
+                android:paddingBottom="11dip"
                 android:text="android_around_me" />
 
         </LinearLayout>

@@ -75,7 +75,7 @@ import static android.location.LocationManager.GPS_PROVIDER;
 import static android.location.LocationManager.NETWORK_PROVIDER;
 
 
-public class Home extends AbstractController implements OnMapReadyCallback {
+public class Home extends AbstractController /*implements OnMapReadyCallback */ {
 
     private static Home instance;
     private static String Title;
@@ -149,17 +149,18 @@ public class Home extends AbstractController implements OnMapReadyCallback {
 
         // set ad sense
         Utils.setAdsense(layout, "home");
-
-        ((SupportMapFragment) Config.context.getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
-    }
-
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-
         requestRead();
+
+//        ((SupportMapFragment) Config.context.getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
+
+
+//    @Override
+//    public void onMapReady(GoogleMap googleMap) {
+//        map = googleMap;
+//
+//        requestRead();
+//    }
 
     public void requestRead() {
         String[] PERMISSIONS = {
@@ -183,8 +184,21 @@ public class Home extends AbstractController implements OnMapReadyCallback {
                     PERMISSIONS,
                     2222);
         } else {
-            updateMapHost(true);
+//            updateMapHost(true);
+
+
         }
+
+        final LinearLayout around_me = (LinearLayout) Config.context.findViewById(R.id.around_me);
+        around_me.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Config.context, SearchAroundActivity.class);
+                intent.putExtra("lat", 0.0);
+                intent.putExtra("long", 0.0);
+                Config.context.startActivity(intent);
+            }
+        });
     }
 
     private boolean hasPermissions(Context context, String... permissions) {
@@ -200,49 +214,61 @@ public class Home extends AbstractController implements OnMapReadyCallback {
 
     public static void updateMapHost(final boolean myLoc) {
 
-        if (map == null) {
-            return;
-        }
+//        if (map == null) {
+//            return;
+//        }
 
-        final LinearLayout around_me = (LinearLayout) Config.context.findViewById(R.id.around_me);
-        ViewTreeObserver vto = around_me.getViewTreeObserver();
-        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            public boolean onPreDraw() {
-                int height;
-                around_me.getViewTreeObserver().removeOnPreDrawListener(this);
-                height = around_me.getMeasuredHeight();
-
-                /* set default option */
-                Double lat = 40.915582;
-                Double lon = -73.832241;
-                LatLng position = new LatLng(lat, lon);
-                int zoom = 14;
-
-                map.getUiSettings().setAllGesturesEnabled(false);
-                if (myLoc) {
-                    final GPSTracker mGPS = new GPSTracker(Config.context);
-                    if (mGPS.canGetLocation() && mGPS.latitude != 0.0) {
-                        position = new LatLng(mGPS.latitude, mGPS.longitude);
-                        zoom = Listing.getAvailableZoomLevel(map, "14");
-                    }
-                }
-
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, zoom));
-                map.setPadding(0, 0, 0, height);
-                final LatLng finalPosition = position;
-                map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                    @Override
-                    public void onMapClick(LatLng point) {
-                        Intent intent = new Intent(Config.context, SearchAroundActivity.class);
-                        intent.putExtra("lat", finalPosition.latitude);
-                        intent.putExtra("long", finalPosition.longitude);
-                        Config.context.startActivity(intent);
-                    }
-                });
-
-                return true;
-            }
-        });
+//        final LinearLayout around_me = (LinearLayout) Config.context.findViewById(R.id.around_me);
+//        around_me.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(Config.context, SearchAroundActivity.class);
+//                intent.putExtra("lat", 0.0);
+//                intent.putExtra("long", 0.0);
+//                Config.context.startActivity(intent);
+//            }
+//        });
+//        ViewTreeObserver vto = around_me.getViewTreeObserver();
+//        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//            public boolean onPreDraw() {
+//                int height;
+//                around_me.getViewTreeObserver().removeOnPreDrawListener(this);
+//                height = around_me.getMeasuredHeight();
+//
+//
+//
+//
+//                /* set default option */
+////                Double lat = 40.915582;
+////                Double lon = -73.832241;
+////                LatLng position = new LatLng(lat, lon);
+////                int zoom = 14;
+////
+////                map.getUiSettings().setAllGesturesEnabled(false);
+////                if (myLoc) {
+////                    final GPSTracker mGPS = new GPSTracker(Config.context);
+////                    if (mGPS.canGetLocation() && mGPS.latitude != 0.0) {
+////                        position = new LatLng(mGPS.latitude, mGPS.longitude);
+////                        zoom = Listing.getAvailableZoomLevel(map, "14");
+////                    }
+////                }
+////
+////                map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, zoom));
+////                map.setPadding(0, 0, 0, height);
+////                final LatLng finalPosition = position;
+////                map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+////                    @Override
+////                    public void onMapClick(LatLng point) {
+////                        Intent intent = new Intent(Config.context, SearchAroundActivity.class);
+////                        intent.putExtra("lat", finalPosition.latitude);
+////                        intent.putExtra("long", finalPosition.longitude);
+////                        Config.context.startActivity(intent);
+////                    }
+////                });
+//
+//                return true;
+//            }
+//        });
     }
 
     public void call_sliding_Api() {
@@ -528,6 +554,7 @@ public class Home extends AbstractController implements OnMapReadyCallback {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("start", "0");
         final String url = Utils.buildRequestUrl("getHomeListings", params, null);
+        Log.e(TAG, "refreshLayout: api call  " + url);
 
         /* do async request */
         AsyncHttpClient client = new AsyncHttpClient();
@@ -538,6 +565,8 @@ public class Home extends AbstractController implements OnMapReadyCallback {
                 // called when response HTTP status is "200 OK"
                 try {
                     String response = String.valueOf(new String(server_response, "UTF-8"));
+
+                    Log.e(TAG, "onSuccess: response  " + response);
                     /* parse response */
                     XMLParser parser = new XMLParser();
                     Document doc = parser.getDomElement(response, url);
@@ -592,6 +621,9 @@ public class Home extends AbstractController implements OnMapReadyCallback {
 
         /* handle grid view shadow */
         LinearLayout shadow = (LinearLayout) view.findViewById(R.id.featured_shadow);
-        shadow.setVisibility(Config.orientation == Configuration.ORIENTATION_PORTRAIT ? View.VISIBLE : View.GONE);
+//        shadow.setVisibility(View.GONE);
+        shadow.setVisibility(Config.orientation == Configuration.ORIENTATION_PORTRAIT ? View.GONE : View.GONE);
+//        shadow.setVisibility(Config.orientation == Configuration.ORIENTATION_PORTRAIT ? View.VISIBLE : View.GONE);
+
     }
 }
