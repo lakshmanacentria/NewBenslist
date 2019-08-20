@@ -13,6 +13,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,8 +34,11 @@ import android.widget.Toast;
 import com.acentria.benslist.Account;
 import com.acentria.benslist.R;
 import com.acentria.benslist.Utils;
+import com.acentria.benslist.adapters.ProductAddAdapter;
 import com.acentria.benslist.response.City;
 import com.acentria.benslist.response.Country;
+import com.acentria.benslist.response.CurrencyPojo;
+import com.acentria.benslist.response.ProductAdd;
 import com.acentria.benslist.response.State;
 import com.acentria.benslist.util.ImagePicker;
 import com.acentria.benslist.util.UiHelper;
@@ -53,6 +58,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -66,9 +72,13 @@ import okhttp3.Response;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
-public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedChangeListener, View.OnClickListener {
+public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedChangeListener, View.OnClickListener, ProductAddAdapter.OnclickPos {
 
     private View view;
+    private RecyclerView rv_productadd;
+    private ProductAddAdapter productAddAdapter;
+    private List<ProductAdd> productAddList = new ArrayList<>();
+
     private RadioGroup radiogroup_money, bank_radiogroup;
     private RadioButton radio_money, radio_others, radio_bank, radio_paypal;
     private LinearLayout ll_othres, ll_money, _ll_hide_others, ll_bank_detail, ll_radiogroup;
@@ -77,20 +87,22 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
     private int selected_radio_money, selected_radio_bank;
 
     private EditText et_title, et_name_organization, et_description, et_product, et_qauntity, et_email, et_amount, et_address_des, et_telephone, et_bankname, et_acc_no, et_ifsc_code, et_additionalinfo;
-    private Spinner spinner_selectcountry, spinner_select_state, spinner_select_city;
+    private Spinner spinner_selectcountry, spinner_select_state, spinner_select_city, spinner_select_currency;
     private ArrayList<Country> countries = new ArrayList<>();
     private ArrayList<State> states = new ArrayList<>();
     private ArrayList<City> cities = new ArrayList<>();
+    private ArrayList<CurrencyPojo> currency = new ArrayList<>();
 
     private ArrayAdapter<Country> countryArrayAdapter;
     private ArrayAdapter<State> stateArrayAdapter;
     private ArrayAdapter<City> cityArrayAdapter;
+    private ArrayAdapter<CurrencyPojo> currencyAdapter;
 
     private Context context;
     private ProgressDialog progressDialog;
     private String user_login_id = Account.accountData.get("id"), c_type_str = "", payment_method = "";
 
-    private String title = "", name_of_organization = "", description = "", amount = "", remaining_amount = "", email = "", tel = "", product = "", qauntity = "",
+    private String title = "", name_of_organization = "", currency_type = "", description = "", amount = "", remaining_amount = "", email = "", tel = "", product = "", qauntity = "",
             address = "", paypal_id = "", bank_name = "", account_no = "", ifsc_code = "", additional_info = "", country_str = "", state_str = "", city_str = "";
     private static final int RequestPermissionCode = 1;
     private static final int SELECT_FILE = 2;
@@ -167,6 +179,11 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         et_address_des = view.findViewById(R.id.et_address_des);
         et_telephone = view.findViewById(R.id.et_telephone);
 
+        rv_productadd = view.findViewById(R.id.rv_productadd);
+        btn_addmore = view.findViewById(R.id.btn_addmore);
+        btn_addmore.setOnClickListener(this);
+        /*add dynamic product & qaunity*/
+        adddynemicProduct();
 
         btn_submit = (Button) view.findViewById(R.id.btn_submit);
         btn_submit.setOnClickListener(this);
@@ -179,8 +196,13 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         spinner_selectcountry = (Spinner) view.findViewById(R.id.spinner_selectcountry);
         spinner_select_state = (Spinner) view.findViewById(R.id.spinner_select_state);
         spinner_select_city = (Spinner) view.findViewById(R.id.spinner_select_city);
+        spinner_select_currency = (Spinner) view.findViewById(R.id.spinner_select_currency);
+
 
 //        createLists();
+//        currency.add("$"); /*dollar*/
+//        currency.add("£"); /*pound*/
+//        currency.add("€"); /*euro*/
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setIndeterminate(true);
         progressDialog.setCanceledOnTouchOutside(false);
@@ -191,6 +213,9 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         spinner_selectcountry.setOnItemSelectedListener(country_listener);
         spinner_select_state.setOnItemSelectedListener(state_listener);
         spinner_select_city.setOnItemSelectedListener(city_listener);
+        spinner_select_currency.setOnItemSelectedListener(currency_listener);
+
+
 
         /*radio button get runtime state*/
         if (radio_money.isChecked()) {
@@ -208,6 +233,15 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
             payment_method = "P";
             Log.e(TAG, "radio_paypalscheck " + payment_method);
         }
+
+    }
+
+    private void adddynemicProduct() {
+        rv_productadd.setLayoutManager(new LinearLayoutManager(getActivity()));
+        productAddList.add(new ProductAdd("", ""));
+        productAddAdapter = new ProductAddAdapter(getActivity(), productAddList, CreatCharityFrag.this);
+        rv_productadd.setAdapter(productAddAdapter);
+        productAddAdapter.notifyDataSetChanged();
 
     }
 
@@ -274,6 +308,25 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         }
     };
 
+    private AdapterView.OnItemSelectedListener currency_listener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            if (position > 0) {
+                final CurrencyPojo currency = (CurrencyPojo) spinner_select_currency.getItemAtPosition(position);
+                Log.e("Currency SpinnerCountry", "onItemSelected: country: " + /*country.getCountryID() +*/ " " + currency.getCurrencytype());
+                currency_type = currency.getCurrencytype();
+
+                Log.e(TAG, "onItemSelected: " + currency_type);
+
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+
 
     /**/
     @Override
@@ -289,7 +342,6 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
                         _ll_hide_others.setVisibility(View.VISIBLE);
                         radioButton_monty.setChecked(true);
                         radio_others.setChecked(false);
-
                         Log.e(TAG, "select money " + radioButton_monty.getText().toString());
                         c_type_str = "M";
                     } else {
@@ -329,10 +381,10 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
                     } else {
                         Log.e(TAG, "select Paypal " + radioButton_bank.getText().toString());
                         payment_method = "P";
-                        et_bankname.setHint("Paypal ID");
+                        et_additionalinfo.setHint("Paypal ID");
                         et_acc_no.setVisibility(View.GONE);
                         et_ifsc_code.setVisibility(View.GONE);
-                        et_additionalinfo.setVisibility(View.GONE);
+                        et_bankname.setVisibility(View.GONE);
                         radioButton_bank.setChecked(false);
                         radio_paypal.setChecked(true);
 
@@ -363,7 +415,21 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
             case R.id.iv_profile:
                 insetImageDailog();
                 break;
+            case R.id.btn_addmore:
+//                addDynemicProdcutItems();
+                break;
         }
+    }
+
+    private void addDynemicProdcutItems() {
+        if (productAddList.size() > 0) {
+            productAddList.add(new ProductAdd("", ""));
+            Log.e(TAG, "addDynemicProdcutItems: " + productAddList.size());
+            productAddAdapter = new ProductAddAdapter(getActivity(), productAddList, CreatCharityFrag.this);
+            productAddAdapter.notifyItemInserted(productAddList.size() - 1);
+            rv_productadd.scrollToPosition(productAddAdapter.getItemCount() - 1);
+        }
+
     }
 
 
@@ -406,6 +472,7 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
                                 public void run() {
                                     progressDialog.dismiss();
                                     spinner_selectcountry.setAdapter(countryArrayAdapter);
+                                    call_currencyApi();
                                 }
                             });
 
@@ -554,6 +621,7 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
                                     progressDialog.dismiss();
                                     spinner_select_city.setAdapter(cityArrayAdapter);
 
+
                                 }
                             });
 
@@ -577,6 +645,70 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
 
     }
 
+    private void call_currencyApi() {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder().url("https://www.benslist.com/Api/currency_code.inc.php").build();
+        progressDialog.show();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    if (response.isSuccessful()) {
+
+                        String json_response = response.body().string();
+                        Log.e(TAG, "onResponse: \n" + json_response);
+                        if (!json_response.equalsIgnoreCase("[]")) {
+                            JSONArray currencyitemArray = new JSONArray(json_response);
+                            Type type = new TypeToken<ArrayList<CurrencyPojo>>() {
+                            }.getType();
+
+                            currency = (new Gson()).fromJson(currencyitemArray.toString(), type);
+                            for (int i = 0; i < currency.size(); i++) {
+                                Log.e(TAG, "onResponse: pos" + i + "\t" + currency.get(i).getCurrencytype());
+
+                            }
+                            currency_type = currency.get(0).getCurrencytype();
+                            currencyAdapter = new ArrayAdapter<CurrencyPojo>(getActivity(), R.layout.simple_spinner_dropdown_item, currency);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressDialog.dismiss();
+                                    spinner_select_currency.setAdapter(currencyAdapter);
+
+                                }
+                            });
+
+
+                        } else {
+                            progressDialog.dismiss();
+                            Log.e(TAG, "currency Unsuccess  and return [] arrary");
+                        }
+
+
+                    } else {
+                        progressDialog.dismiss();
+                        Log.e(TAG, "currency Unsuccess ");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        });
+
+    }
+
     private void validationforcharity() {
         if (!isvalidationbefor_createCharity()) {
             return;
@@ -592,14 +724,37 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         } else if (city_str.isEmpty()) {
             Toast.makeText(getActivity(), "please select city.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "city fields is request " + city_str);
-        } else {
+        }
+        /*addproduct list*/
+
+        else {
             if (Utils.isOnline(getActivity())) {
-                callCreateCharityApi();
+                callCreateCharityApi(/*create_payload()*/);
             } else {
                 Toast.makeText(getActivity(), getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
             }
         }
 
+    }
+
+    private MultipartBody.Builder create_payload() {
+
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        for (int i = 0; i < productAddList.size(); i++) {
+//            if (productAddList.get(0).getProdcutname().equalsIgnoreCase("")) {
+//                builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
+//                builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
+//                Log.e(TAG, "callCreateCharityApi 0 pos : product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
+//            }
+
+            if (!productAddList.get(i).getProdcutname().equalsIgnoreCase("") && !productAddList.get(i).getProdcut_qauntity().equalsIgnoreCase("")) {
+                builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
+                builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
+                Log.e(TAG, "callCreateCharityApi: not blnak value product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
+
+            }
+        }
+        return builder;
     }
 
     private boolean isvalidationbefor_createCharity() {
@@ -616,7 +771,7 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         qauntity = et_qauntity.getText().toString().trim();
         address = et_address_des.getText().toString().trim();
 
-        paypal_id = et_bankname.getText().toString().trim();/*manage on single edit text*/
+        paypal_id = et_additionalinfo.getText().toString().trim();/*manage on single edit text*/
         bank_name = et_bankname.getText().toString().trim();
         account_no = et_acc_no.getText().toString().trim();
         ifsc_code = et_ifsc_code.getText().toString().trim();
@@ -693,30 +848,30 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
             }
         }
         /*for other visible */
-        if (ll_othres.getVisibility() == View.VISIBLE) {
-            ll_money.setVisibility(View.GONE);
-            ll_othres.setVisibility(View.VISIBLE);
-            Log.e(TAG, "Loop in c_type condion Others " + c_type_str);
-            /*other conntent visible */
-            if (product.isEmpty()) {
-//                Toast.makeText(getActivity(), getResources().getString(R.string.product_filed_error), Toast.LENGTH_LONG).show();
-                et_product.setError(getResources().getString(R.string.product_filed_error));
-                valid = false;
-                Log.e(TAG, "product fields is request " + product);
-            } else {
-                et_product.setError(null);
-            }
-
-            if (qauntity.isEmpty()) {
-//                Toast.makeText(getActivity(), R.string.qauntity_fileld_error, Toast.LENGTH_LONG).show();
-                et_qauntity.setError(getResources().getString(R.string.qauntity_fileld_error));
-                valid = false;
-                Log.e(TAG, "Quantity fields is request " + qauntity);
-            } else {
-                et_qauntity.setError(null);
-                Log.e(TAG, "Quantity valid " + qauntity);
-            }
-        }
+//        if (ll_othres.getVisibility() == View.VISIBLE) {
+//            ll_money.setVisibility(View.GONE);
+//            ll_othres.setVisibility(View.VISIBLE);
+//            Log.e(TAG, "Loop in c_type condion Others " + c_type_str);
+//            /*other conntent visible */
+//            if (product.isEmpty()) {
+////                Toast.makeText(getActivity(), getResources().getString(R.string.product_filed_error), Toast.LENGTH_LONG).show();
+//                et_product.setError(getResources().getString(R.string.product_filed_error));
+//                valid = false;
+//                Log.e(TAG, "product fields is request " + product);
+//            } else {
+//                et_product.setError(null);
+//            }
+//
+//            if (qauntity.isEmpty()) {
+////                Toast.makeText(getActivity(), R.string.qauntity_fileld_error, Toast.LENGTH_LONG).show();
+//                et_qauntity.setError(getResources().getString(R.string.qauntity_fileld_error));
+//                valid = false;
+//                Log.e(TAG, "Quantity fields is request " + qauntity);
+//            } else {
+//                et_qauntity.setError(null);
+//                Log.e(TAG, "Quantity valid " + qauntity);
+//            }
+//        }
 
 
         if (address.isEmpty()) {
@@ -729,68 +884,98 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         }
 
         /*radio group of select payment method */
-        if (payment_method.equalsIgnoreCase("B")) {
-            if (bank_name.isEmpty()) {
-                et_bankname.setError(getResources().getString(R.string.bank_field_error));
-                valid = false;
+        if (radio_money.isSelected() == true) {
+            if (payment_method.equalsIgnoreCase("B")) {
+                if (bank_name.isEmpty()) {
+                    et_bankname.setError(getResources().getString(R.string.bank_field_error));
+                    valid = false;
 //                Toast.makeText(getActivity(),getResources().getString( R.string.bank_field_error), Toast.LENGTH_LONG).show();
-                Log.e(TAG, "bank name fields is request " + bank_name);
-            } else {
-                et_bankname.setError(null);
-            }
-            if (account_no.isEmpty()) {
-                et_acc_no.setError(getResources().getString(R.string.account_fields_error));
-                valid = false;
+                    Log.e(TAG, "bank name fields is request " + bank_name);
+                } else {
+                    et_bankname.setError(null);
+                }
+                if (account_no.isEmpty()) {
+                    et_acc_no.setError(getResources().getString(R.string.account_fields_error));
+                    valid = false;
 //                 Toast.makeText(getActivity(), getResources().getString(R.string.account_fields_error), Toast.LENGTH_LONG).show();
-                Log.e(TAG, "account name fields is request " + account_no);
-            } else {
-                et_acc_no.setError(null);
-            }
-            if (ifsc_code.isEmpty()) {
-                et_ifsc_code.setError(getResources().getString(R.string.ifsc_filesds_error));
-                valid = false;
+                    Log.e(TAG, "account name fields is request " + account_no);
+                } else {
+                    et_acc_no.setError(null);
+                }
+                if (ifsc_code.isEmpty()) {
+                    et_ifsc_code.setError(getResources().getString(R.string.ifsc_filesds_error));
+                    valid = false;
 //                  Toast.makeText(getActivity(), getResources().getString(R.string.ifsc_filesds_error), Toast.LENGTH_LONG).show();
-                Log.e(TAG, "IFSC code fields is request " + account_no);
-            } else {
-                et_ifsc_code.setError(null);
-            }
-            if (additional_info.isEmpty()) {
-                et_additionalinfo.setError(getResources().getString(R.string.additonal_info_error));
-                valid = false;
+                    Log.e(TAG, "IFSC code fields is request " + account_no);
+                } else {
+                    et_ifsc_code.setError(null);
+                }
+                if (additional_info.isEmpty()) {
+                    et_additionalinfo.setError(getResources().getString(R.string.additonal_info_error));
+                    valid = false;
 //                Toast.makeText(getActivity(), getResources().getString(R.string.additonal_info_error), Toast.LENGTH_LONG).show();
-                Log.e(TAG, "Additional Info fields is request " + account_no);
-            } else {
-                et_additionalinfo.setError(null);
+                    Log.e(TAG, "Additional Info fields is request " + account_no);
+                } else {
+                    et_additionalinfo.setError(null);
+                }
+                Log.e(TAG, "Loop in payment_method condion Others " + payment_method);
             }
-            Log.e(TAG, "Loop in payment_method condion Others " + payment_method);
-        }
-        if (payment_method.equalsIgnoreCase("P")) {
-            if (paypal_id.isEmpty()) {
-                et_bankname.setError(getResources().getString(R.string.paypal_fileds_error));
-                valid = false;
+            if (payment_method.equalsIgnoreCase("P")) {
+                if (paypal_id.isEmpty()) {
+                    et_bankname.setError(getResources().getString(R.string.paypal_fileds_error));
+                    valid = false;
 //                Toast.makeText(getActivity(),getResources().getString( R.string.paypal_fileds_error), Toast.LENGTH_LONG).show();
-                Log.e(TAG, "Pypal id fields is request " + account_no);
-            } else {
-                et_bankname.setError(null);
+                    Log.e(TAG, "Pypal id fields is request " + account_no);
+                } else {
+                    et_bankname.setError(null);
+                }
+                Log.e(TAG, "Loop in payment_method condion Others " + payment_method);
             }
-            Log.e(TAG, "Loop in payment_method condion Others " + payment_method);
+        }
+        if (ll_othres.getVisibility() == View.VISIBLE) {
+            if (productAddList.get(0).getProdcutname().equalsIgnoreCase("")) {
+                Log.e(TAG, "callCreateCharityApi: " + productAddList.get(0).getProdcutname());
+                Toast.makeText(getActivity(), " product field required", Toast.LENGTH_LONG).show();
+                valid = false;
+            }
+            if (productAddList.get(0).getProdcut_qauntity().equalsIgnoreCase("")) {
+                Toast.makeText(getActivity(), " quantity field required", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "callCreateCharityApi: " + productAddList.get(0).getProdcut_qauntity());
+                valid = false;
+            }
+
         }
 
         return valid;
     }
 
     /*Create Charity submit api */
-    private void callCreateCharityApi() {
+    private void callCreateCharityApi(/*MultipartBody.Builder builder*/) {
         String profilenamepath = "";
 
         Log.e(TAG, "callCreateCharityApi");
 
-        if (product.equalsIgnoreCase("")) {
-            product = "0";
+        if (ll_othres.getVisibility() == View.VISIBLE) {
+            if (productAddList.get(0).getProdcutname().equalsIgnoreCase("")) {
+                Log.e(TAG, "callCreateCharityApi: " + productAddList.get(0).getProdcutname());
+                Toast.makeText(getActivity(), " product field required", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (productAddList.get(0).getProdcut_qauntity().equalsIgnoreCase("")) {
+                Toast.makeText(getActivity(), " quantity field required", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "callCreateCharityApi: " + productAddList.get(0).getProdcut_qauntity());
+                return;
+            }
+
         }
-        if (qauntity.equalsIgnoreCase("")) {
-            qauntity = "0";
-        }
+
+
+//        if (product.equalsIgnoreCase("")) {
+//            product = "0";
+//        }
+//        if (qauntity.equalsIgnoreCase("")) {
+//            qauntity = "0";
+//        }
 
 
         OkHttpClient okHttpClientforCharity = new OkHttpClient();
@@ -805,8 +990,9 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
                 .addFormDataPart("remaining_amount", remaining_amount)
                 .addFormDataPart("email", email)
                 .addFormDataPart("tel", tel)
-                .addFormDataPart("[product]", product)
-                .addFormDataPart("[quantity]", qauntity)
+                .addFormDataPart("currency_type", currency_type)
+                .addFormDataPart("[product]", productAddList.get(0).getProdcutname())
+                .addFormDataPart("[quantity]", productAddList.get(0).getProdcut_qauntity())
                 .addFormDataPart("country", country_str)
                 .addFormDataPart("state", state_str)
                 .addFormDataPart("city", city_str)
@@ -824,11 +1010,27 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
             builder.addFormDataPart("avtar", profilenamepath, RequestBody.create(MEDIA_TYPE_PNG, image_profileByte));
         }
 
+
+//        if (productAddList.size() > 0) {
+//        for (int i = 0; i < productAddList.size(); i++) {
+////                if (productAddList.get(0).getProdcutname().equalsIgnoreCase("")) {
+////                    builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
+////                    builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
+////                    Log.e(TAG, "callCreateCharityApi 0 pos : product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
+////                }
+//            if (!productAddList.get(i).getProdcutname().equalsIgnoreCase("") && !productAddList.get(i).getProdcut_qauntity().equalsIgnoreCase("")) {
+//                builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
+//                builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
+//                Log.e(TAG, "callCreateCharityApi: not blnak value product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
+//
+//            }
+//        }
+
         RequestBody requestBody = builder.build();
 
         Log.e(TAG, "MultipartBody Create =>" + "account_id" + user_login_id + "\ntitle" + title + "\nname_of_organization " + name_of_organization + "\ndescription" + description
-                + "\nc_type" + c_type_str + "\namount " + amount + "\nremaining_amount " + remaining_amount + "\nemail " + email + "\ntel" + tel + "\nproduct" + product +
-                "\nquantity " + qauntity + "\ncountry " + country_str + "\nstate " + state_str + "\ncity " + city_str + "\naddress " + address + "\npayment_method " + payment_method +
+                + "\nc_type" + c_type_str + "\namount " + amount + "\ncurrency_type " + currency_type + "\nremaining_amount " + remaining_amount + "\nemail " + email + "\ntel" + tel + "\nproduct" + productAddList.get(0).getProdcutname() +
+                "\nquantity " + productAddList.get(0).getProdcut_qauntity() + "\ncountry " + country_str + "\nstate " + state_str + "\ncity " + city_str + "\naddress " + address + "\npayment_method " + payment_method +
                 "\npaypal_email " + paypal_id + "\nbank_name " + bank_name + "\naccount_no " + account_no + "\nifsc_code " + ifsc_code + "\nadditional_info " + additional_info +
                 "\navtar " + file.getName() + "soucesname " + profilenamepath);
 
@@ -987,4 +1189,9 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
     }
 
 
+    /*add prodcut */
+    @Override
+    public void onClickIems(int pos, String productname, String prductqaunity) {
+
+    }
 }

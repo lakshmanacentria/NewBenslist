@@ -31,7 +31,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical">
 
                     <android.support.v4.view.ViewPager
@@ -52,7 +52,7 @@
                         android:layout_height="@dimen/home_grid_size"
                         android:layout_below="@id/view_layout"
                         android:layout_alignParentBottom="true"
-                        android:layout_marginBottom="0dp"
+                        android:layout_marginBottom="5dp"
                         android:clickable="true"
                         android:columnWidth="@dimen/home_grid_column_width"
                         android:drawSelectorOnTop="true"

@@ -93,6 +93,7 @@ public class ChatHistoryActivity extends AppCompatActivity implements View.OnCli
         iv_send = findViewById(R.id.iv_send);
         iv_send.setOnClickListener(this);
         rv_recyclerviw = findViewById(R.id.rv_recyclerviw);
+
         tv_no_records = findViewById(R.id.tv_no_records);
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);

@@ -29,6 +29,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.acentria.benslist.Account;
 import com.acentria.benslist.Config;
 import com.acentria.benslist.Dialog;
 import com.acentria.benslist.Lang;
@@ -733,8 +734,8 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
     }
 
     private void call_charitydonat_api(String paymentdate, String id, String state_payment_status, String bussinesstype, String response_type) {
-
-        Log.e(TAG, " befor sending Data on server=> " + ref_no + mrs_str + "\n" + country_str + "\n" + state_str + "\n" + city_str + "\n" + ammount_withoutgood_str +
+        String payer_id = Account.accountData.get("id");
+        Log.e(TAG, " befor sending Data on server=> "  +payer_id+"\n"+ref_no + mrs_str + "\n" + country_str + "\n" + state_str + "\n" + city_str + "\n" + ammount_withoutgood_str +
                 "\n" + fristname + lastname + "\n" + email_str + "" + telephone + "\n" + address + "\n" + keepme_str + "charity id" + charity_id);
 //        mqunatity = adatper.mlist.get(0).getManualQuanty();
 //        Log.e(TAG, "call_charitydonat_api: " + mqunatity);
@@ -783,6 +784,7 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
                     .addFormDataPart("product", mproduct)
                     .addFormDataPart("quantity", "12");
         } else {
+
             url = "https://www.benslist.com/Api/charity_donate.inc.php";
             builder.addFormDataPart("charity_id", charity_id)
                     .addFormDataPart("first_name", fristname)
@@ -795,15 +797,17 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
                     .addFormDataPart("keepme", keepme_str)
                     .addFormDataPart("amount", ammount_withoutgood_str)
                     .addFormDataPart("payer_email", email_str)
-                    .addFormDataPart("residence_country", residence_country)
+                    .addFormDataPart("payer_id", payer_id)
+//                    .addFormDataPart("residence_country", country_str)
                     .addFormDataPart("txn_id", id)
-                    .addFormDataPart("mc_currency", "$")
-                    .addFormDataPart("payment_gross", "211")
-                    .addFormDataPart("payment_fee", "123")
-                    .addFormDataPart("payment_status", state_payment_status)
-                    .addFormDataPart("item_name", "abc")
-                    .addFormDataPart("payment_date", paymentdate)
-                    .addFormDataPart("business", bussinesstype);
+//                    .addFormDataPart("mc_currency", "$")
+//                    .addFormDataPart("payment_gross", "211")
+//                    .addFormDataPart("payment_fee", "123")
+//                    .addFormDataPart("payment_status", state_payment_status)
+//                    .addFormDataPart("item_name", "abc")
+//                    .addFormDataPart("payment_date", paymentdate)
+//                    .addFormDataPart("business", bussinesstype)
+            ;
         }
         RequestBody requestBody = builder.build();
         Request requestcharitydonate = new Request.Builder()

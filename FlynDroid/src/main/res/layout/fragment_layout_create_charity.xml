@@ -16,8 +16,7 @@
         <android.support.v4.widget.NestedScrollView
             android:id="@+id/nestscroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -27,10 +26,10 @@
 
 
                 <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/iv_profile"
                     android:layout_width="125dp"
                     android:layout_height="125dp"
                     android:layout_gravity="center"
-                    android:id="@+id/iv_profile"
                     android:src="@mipmap/seller_no_photo"
                     app:civ_border_color="@android:color/black"
                     app:civ_border_width="3dp" />
@@ -114,25 +113,33 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rv_productadd"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:overScrollMode="never"
+                            android:scrollbars="none" />
 
                         <EditText
                             android:id="@+id/et_product"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Enter Product"
-                            android:singleLine="true"
                             android:imeOptions="actionNext"
-                            android:padding="10dp" />
+                            android:padding="10dp"
+                            android:singleLine="true"
+                            android:visibility="gone" />
 
                         <EditText
                             android:id="@+id/et_qauntity"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Enter Quantity"
-                            android:inputType="numberDecimal"
-                            android:singleLine="true"
                             android:imeOptions="actionNext"
-                            android:padding="10dp" />
+                            android:inputType="numberDecimal"
+                            android:padding="10dp"
+                            android:singleLine="true"
+                            android:visibility="gone" />
 
                         <Button
                             android:id="@+id/btn_addmore"
@@ -157,15 +164,40 @@
                         android:orientation="vertical"
                         android:visibility="visible">
 
-                        <EditText
-                            android:id="@+id/et_amount"
+                        <LinearLayout
+                            android:weightSum="3"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Enter Amount"
-                            android:imeOptions="actionNext"
-                            android:inputType="numberDecimal"
-                            android:padding="10dp"
-                            android:singleLine="true" />
+                            android:layout_height="wrap_content">
+
+                            <EditText
+                                android:layout_weight="1"
+                                android:id="@+id/et_amount"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:hint="Enter Amount"
+                                android:layout_marginRight="10dp"
+                                android:imeOptions="actionNext"
+                                android:inputType="numberDecimal"
+                                android:padding="10dp"
+                                android:singleLine="true" />
+
+                            <Spinner
+                                android:id="@+id/spinner_select_currency"
+                                android:layout_weight="2"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:tooltipText="select currency"
+                                android:layout_gravity="center_vertical"
+                                android:paddingLeft="16dp"
+                                android:paddingRight="16dp"
+                                />
+
+
+                        </LinearLayout>
+
+
+
+
 
                         <EditText
                             android:id="@+id/et_email"
@@ -329,13 +361,13 @@
                                 android:id="@+id/et_additionalinfo"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="16dp"
                                 android:hint="Additional Info."
                                 android:imeOptions="actionDone"
-                                android:paddingTop="5dp"
-                                android:paddingBottom="5dp"
-                                android:layout_marginBottom="16dp"
                                 android:paddingLeft="10dp"
+                                android:paddingTop="5dp"
                                 android:paddingRight="10dp"
+                                android:paddingBottom="5dp"
                                 android:singleLine="true" />
 
 
