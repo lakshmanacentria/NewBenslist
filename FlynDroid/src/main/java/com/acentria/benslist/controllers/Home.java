@@ -189,16 +189,17 @@ public class Home extends AbstractController /*implements OnMapReadyCallback */ 
 
         }
 
-        final LinearLayout around_me = (LinearLayout) Config.context.findViewById(R.id.around_me);
-        around_me.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Config.context, SearchAroundActivity.class);
-                intent.putExtra("lat", 0.0);
-                intent.putExtra("long", 0.0);
-                Config.context.startActivity(intent);
-            }
-        });
+//        final LinearLayout around_me = (LinearLayout) Config.context.findViewById(R.id.around_me);
+//        around_me.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(Config.context, SearchAroundActivity.class);
+//                intent.putExtra("lat", 0.0);
+//                intent.putExtra("long", 0.0);
+//                Config.context.startActivity(intent);
+//            }
+//        });
+
     }
 
     private boolean hasPermissions(Context context, String... permissions) {
@@ -623,7 +624,7 @@ public class Home extends AbstractController /*implements OnMapReadyCallback */ 
         LinearLayout shadow = (LinearLayout) view.findViewById(R.id.featured_shadow);
 //        shadow.setVisibility(View.GONE);
         shadow.setVisibility(Config.orientation == Configuration.ORIENTATION_PORTRAIT ? View.GONE : View.GONE);
-//        shadow.setVisibility(Config.orientation == Configuration.ORIENTATION_PORTRAIT ? View.VISIBLE : View.GONE);
+
 
     }
 }

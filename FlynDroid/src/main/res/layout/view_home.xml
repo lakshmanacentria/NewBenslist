@@ -7,8 +7,10 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/bottom_adsense"
+        android:layout_centerInParent="true"
         android:id="@+id/featured_container"
-        android:layout_above="@+id/mapHost"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -88,26 +90,24 @@
         android:id="@+id/featured_shadow"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/mapHost"
         android:background="@drawable/bottom_shadow"
         android:orientation="vertical"
         android:visibility="gone" />
 
     <LinearLayout
         android:visibility="gone"
+        android:layout_alignParentBottom="true"
         android:id="@+id/bottom_adsense"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/mapHost"
+        android:layout_height="200dp"
         android:gravity="bottom"
         android:orientation="vertical" />
 
     <RelativeLayout
-        android:visibility="visible"
+        android:visibility="gone"
         android:id="@+id/mapHost"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
-
         android:layout_alignParentBottom="true"
         android:clickable="true"
         android:orientation="vertical">
@@ -119,6 +119,7 @@
             <!--android:layout_height="1px" />-->
 
         <LinearLayout
+            android:visibility="gone"
             android:id="@+id/around_me"
             android:layout_width="fill_parent"
             android:layout_height="50dp"

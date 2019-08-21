@@ -45,6 +45,8 @@ import com.acentria.benslist.util.UiHelper;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -739,6 +741,10 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
 
     private MultipartBody.Builder create_payload() {
 
+        JsonArray arrayproduct = new JsonArray();
+        JsonArray arrayqauntity = new JsonArray();
+
+
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         for (int i = 0; i < productAddList.size(); i++) {
 //            if (productAddList.get(0).getProdcutname().equalsIgnoreCase("")) {
@@ -751,9 +757,13 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
                 builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
                 builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
                 Log.e(TAG, "callCreateCharityApi: not blnak value product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
+                arrayproduct.add(productAddList.get(i).getProdcutname());
+                arrayqauntity.add(productAddList.get(i).getProdcut_qauntity());
 
             }
         }
+        arrayproduct.set(Integer.parseInt("product"), arrayproduct);
+        arrayqauntity.set(Integer.parseInt("quantity"), arrayqauntity);
         return builder;
     }
 
@@ -1011,187 +1021,193 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         }
 
 
-//        if (productAddList.size() > 0) {
-//        for (int i = 0; i < productAddList.size(); i++) {
-////                if (productAddList.get(0).getProdcutname().equalsIgnoreCase("")) {
-////                    builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
-////                    builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
-////                    Log.e(TAG, "callCreateCharityApi 0 pos : product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
-////                }
-//            if (!productAddList.get(i).getProdcutname().equalsIgnoreCase("") && !productAddList.get(i).getProdcut_qauntity().equalsIgnoreCase("")) {
-//                builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
-//                builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
-//                Log.e(TAG, "callCreateCharityApi: not blnak value product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
-//
-//            }
-//        }
+        JsonArray arrayproduct = new JsonArray();
+        JsonArray arrayqauntity = new JsonArray();
+        JsonObject jsonObject=new JsonObject();
+        /*if (productAddList.size() > 0) {
+            for (int i = 0; i < productAddList.size(); i++) {
+//                if (productAddList.get(0).getProdcutname().equalsIgnoreCase("")) {
+//                    builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
+//                    builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
+//                    Log.e(TAG, "callCreateCharityApi 0 pos : product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
+//                }
+                if (!productAddList.get(i).getProdcutname().equalsIgnoreCase("") && !productAddList.get(i).getProdcut_qauntity().equalsIgnoreCase("")) {
 
-        RequestBody requestBody = builder.build();
-
-        Log.e(TAG, "MultipartBody Create =>" + "account_id" + user_login_id + "\ntitle" + title + "\nname_of_organization " + name_of_organization + "\ndescription" + description
-                + "\nc_type" + c_type_str + "\namount " + amount + "\ncurrency_type " + currency_type + "\nremaining_amount " + remaining_amount + "\nemail " + email + "\ntel" + tel + "\nproduct" + productAddList.get(0).getProdcutname() +
-                "\nquantity " + productAddList.get(0).getProdcut_qauntity() + "\ncountry " + country_str + "\nstate " + state_str + "\ncity " + city_str + "\naddress " + address + "\npayment_method " + payment_method +
-                "\npaypal_email " + paypal_id + "\nbank_name " + bank_name + "\naccount_no " + account_no + "\nifsc_code " + ifsc_code + "\nadditional_info " + additional_info +
-                "\navtar " + file.getName() + "soucesname " + profilenamepath);
-
-        Request requestcharity = new Request.Builder()
-                /* .url(BASE_URL + route)*/
-                .url("https://www.benslist.com/Api/charity_create.inc.php")
-                .post(requestBody)
-                .build();
-        progressDialog.show();
-
-        okHttpClientforCharity.newCall(requestcharity).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e(TAG, " Charity multipart OnFailure " + "onFailure:");
-//                Toast.makeText(getActivity(), getResources().getString(R.string.server_error), Toast.LENGTH_LONG).show();
-                progressDialog.dismiss();
+                    Log.e(TAG, "callCreateCharityApi: not blnak value product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
+                    arrayproduct.add(productAddList.get(i).getProdcutname());
+                    arrayqauntity.add(productAddList.get(i).getProdcut_qauntity());
+                }
+                builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
+                builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
             }
+        }*/
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                progressDialog.dismiss();
-                if (response.isSuccessful()) {
-                    final String success;
-                    String mresponse = response.body().string();
-                    Log.e(TAG, "Multipart Response : " + mresponse);
-                    if (!mresponse.equalsIgnoreCase("{}")) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(mresponse);
-                            success = jsonObject.getString("result");
+            RequestBody requestBody = builder.build();
 
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressDialog.dismiss();
-                                    Utils.isAlertBox(getActivity(), "Ben's List", "Charity Create Successfully");
-                                    clearWeights();
-                                    Log.e(TAG, "response sucess result=> " + success);
+            Log.e(TAG, "MultipartBody Create =>" + "account_id" + user_login_id + "\ntitle" + title + "\nname_of_organization " + name_of_organization + "\ndescription" + description
+                    + "\nc_type" + c_type_str + "\namount " + amount + "\ncurrency_type " + currency_type + "\nremaining_amount " + remaining_amount + "\nemail " + email + "\ntel" + tel + "\nproduct" + productAddList.get(0).getProdcutname() +
+                    "\nquantity " + productAddList.get(0).getProdcut_qauntity() + "\ncountry " + country_str + "\nstate " + state_str + "\ncity " + city_str + "\naddress " + address + "\npayment_method " + payment_method +
+                    "\npaypal_email " + paypal_id + "\nbank_name " + bank_name + "\naccount_no " + account_no + "\nifsc_code " + ifsc_code + "\nadditional_info " + additional_info +
+                    "\navtar " + file.getName() + "soucesname " + profilenamepath);
 
-                                }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+            Request requestcharity = new Request.Builder()
+                    /* .url(BASE_URL + route)*/
+                    .url("https://www.benslist.com/Api/charity_create.inc.php")
+                    .post(requestBody)
+                    .build();
+            progressDialog.show();
+
+            okHttpClientforCharity.newCall(requestcharity).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e(TAG, " Charity multipart OnFailure " + "onFailure:");
+//                Toast.makeText(getActivity(), getResources().getString(R.string.server_error), Toast.LENGTH_LONG).show();
+                    progressDialog.dismiss();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    progressDialog.dismiss();
+                    if (response.isSuccessful()) {
+                        final String success;
+                        String mresponse = response.body().string();
+                        Log.e(TAG, "Multipart Response : " + mresponse);
+                        if (!mresponse.equalsIgnoreCase("{}")) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(mresponse);
+                                success = jsonObject.getString("result");
+
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.dismiss();
+                                        Utils.isAlertBox(getActivity(), "Ben's List", "Charity Create Successfully");
+                                        clearWeights();
+                                        Log.e(TAG, "response sucess result=> " + success);
+
+                                    }
+                                });
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Log.e(TAG, "charity multipart=>  response error");
                         }
                     } else {
-                        Log.e(TAG, "charity multipart=>  response error");
+                        Log.e(TAG, "Multipat Unsuccess respone");
+                    }
+
+
+                }
+            });
+
+        }
+
+        private void clearWeights () {
+            et_title.setText("");
+            et_name_organization.setText("");
+            et_description.setText("");
+            et_product.setText("");
+            et_qauntity.setText("");
+            et_email.setText("");
+            et_telephone.setText("");
+            et_address_des.setText("");
+            et_bankname.setText("");
+            et_acc_no.setText("");
+            et_ifsc_code.setText("");
+            et_additionalinfo.setText("");
+            et_product.setText("");
+
+        }
+
+
+        /*Runtime permission check*/
+        private void EnableRunTimePermission () {
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                        && getActivity().checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                        && getActivity().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                }
+            } else {
+                Log.e(TAG, "Api Level 23 to lower  verson device");
+            }
+        }
+
+        /*insert image dialog*/
+        private void insetImageDailog () {
+            Intent chooseImageIntent = ImagePicker.getPickImageIntent(getActivity());
+            startActivityForResult(chooseImageIntent, SELECT_FILE);
+        }
+
+        /*get result of  to select image and captures images resources */
+        @Override
+        public void onActivityResult ( int requestCode, int resultCode, Intent data){
+            super.onActivityResult(requestCode, resultCode, data);
+            if (resultCode == RESULT_OK) {
+                Log.e(TAG, "RequestCode=> " + requestCode);
+                if (requestCode == SELECT_FILE) {
+                    setProfilePic(resultCode, data);
+                } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+                    CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                    if (resultCode == RESULT_OK) {
+                        Uri resultUri = result.getUri();
+                        try {
+                            Bitmap bm = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(resultUri));
+                            Log.e(TAG, "bitmap profile=> " + bm);
+                            Log.e(TAG, "resultUri " + resultUri);
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            bm.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+
+                            image_profileByte = null;
+                            image_profileByte = byteArrayOutputStream.toByteArray();
+                            iv_profile.setImageBitmap(bm);
+                            file = null;
+                            file = new File(resultUri.getPath());
+                            profile = file.getName();
+                            Glide.with(getActivity()).load(resultUri.getPath()).placeholder(R.mipmap.seller_no_photo).diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(iv_profile);
+                            Log.e(TAG, "bitmaAfter Compress Image=> " + bm);
+                            Log.e(TAG, "byte " + image_profileByte);
+                            Log.e(TAG, "IsProfile " + resultUri);
+                            Log.e(TAG, "ProfilePath " + profile);
+
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                        Exception error = result.getError();
+                        Log.e(TAG, "Exception uri" + error);
                     }
                 } else {
-                    Log.e(TAG, "Multipat Unsuccess respone");
+                    Log.e(TAG, "requestCode" + requestCode + " resultCode=>" + requestCode + "Data=> " + data.getData());
                 }
-
-
             }
-        });
 
-    }
-
-    private void clearWeights() {
-        et_title.setText("");
-        et_name_organization.setText("");
-        et_description.setText("");
-        et_product.setText("");
-        et_qauntity.setText("");
-        et_email.setText("");
-        et_telephone.setText("");
-        et_address_des.setText("");
-        et_bankname.setText("");
-        et_acc_no.setText("");
-        et_ifsc_code.setText("");
-        et_additionalinfo.setText("");
-        et_product.setText("");
-
-    }
-
-
-    /*Runtime permission check*/
-    private void EnableRunTimePermission() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                    && getActivity().checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-                    && getActivity().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
-            }
-        } else {
-            Log.e(TAG, "Api Level 23 to lower  verson device");
         }
-    }
 
-    /*insert image dialog*/
-    private void insetImageDailog() {
-        Intent chooseImageIntent = ImagePicker.getPickImageIntent(getActivity());
-        startActivityForResult(chooseImageIntent, SELECT_FILE);
-    }
+        private void setProfilePic ( int resultCode, Intent data){
+            Bitmap bm = ImagePicker.getImageFromResult(context, resultCode, data);
+            CropImage.activity(UiHelper.getImageUri(context, bm)).start(context, this);
+            Log.e(TAG, "setProfilePic=> " + resultCode + "\tdata=> " + data + "");
+        }
 
-    /*get result of  to select image and captures images resources */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            Log.e(TAG, "RequestCode=> " + requestCode);
-            if (requestCode == SELECT_FILE) {
-                setProfilePic(resultCode, data);
-            } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-                CropImage.ActivityResult result = CropImage.getActivityResult(data);
-                if (resultCode == RESULT_OK) {
-                    Uri resultUri = result.getUri();
-                    try {
-                        Bitmap bm = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(resultUri));
-                        Log.e(TAG, "bitmap profile=> " + bm);
-                        Log.e(TAG, "resultUri " + resultUri);
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        bm.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-
-                        image_profileByte = null;
-                        image_profileByte = byteArrayOutputStream.toByteArray();
-                        iv_profile.setImageBitmap(bm);
-                        file = null;
-                        file = new File(resultUri.getPath());
-                        profile = file.getName();
-                        Glide.with(getActivity()).load(resultUri.getPath()).placeholder(R.mipmap.seller_no_photo).diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(iv_profile);
-                        Log.e(TAG, "bitmaAfter Compress Image=> " + bm);
-                        Log.e(TAG, "byte " + image_profileByte);
-                        Log.e(TAG, "IsProfile " + resultUri);
-                        Log.e(TAG, "ProfilePath " + profile);
-
-
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    Exception error = result.getError();
-                    Log.e(TAG, "Exception uri" + error);
-                }
-            } else {
-                Log.e(TAG, "requestCode" + requestCode + " resultCode=>" + requestCode + "Data=> " + data.getData());
+        /**
+         * Hides the soft keyboard
+         */
+        public void hideSoftKeyboard () {
+            if (getActivity().getCurrentFocus() != null) {
+                InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
             }
         }
 
-    }
 
-    private void setProfilePic(int resultCode, Intent data) {
-        Bitmap bm = ImagePicker.getImageFromResult(context, resultCode, data);
-        CropImage.activity(UiHelper.getImageUri(context, bm)).start(context, this);
-        Log.e(TAG, "setProfilePic=> " + resultCode + "\tdata=> " + data + "");
-    }
+        /*add prodcut */
+        @Override
+        public void onClickIems ( int pos, String productname, String prductqaunity){
 
-    /**
-     * Hides the soft keyboard
-     */
-    public void hideSoftKeyboard() {
-        if (getActivity().getCurrentFocus() != null) {
-            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
         }
     }
-
-
-    /*add prodcut */
-    @Override
-    public void onClickIems(int pos, String productname, String prductqaunity) {
-
-    }
-}
