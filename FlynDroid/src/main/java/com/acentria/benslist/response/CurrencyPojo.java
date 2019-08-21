@@ -4,7 +4,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class CurrencyPojo {
-    @SerializedName("Key")
+
+    @SerializedName("code")
     @Expose
     private String currencytype;
 
@@ -16,4 +17,14 @@ public class CurrencyPojo {
     public void setCurrencytype(String currencytype) {
         this.currencytype = currencytype;
     }
+
+    public CurrencyPojo(String currencytype) {
+        this.currencytype = currencytype;
+    }
+
+    @Override
+    public String toString() {
+        return  currencytype ;
+    }
+
 }

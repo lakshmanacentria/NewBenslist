@@ -54,7 +54,7 @@ public class FlynDroid extends SlidingActivity {
             for (Signature signature : info.signatures) {
                 MessageDigest md = MessageDigest.getInstance("SHA");
                 md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+                Log.e("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         } catch (PackageManager.NameNotFoundException e) {
 
@@ -204,18 +204,13 @@ public class FlynDroid extends SlidingActivity {
                 return true;
 
             case R.id.menu_logout:
-
-
                     /*diffrent conditon approch*/
                     AccountArea.logout();
-//                    CharityArea.logout();
 
                 return true;
 
             case R.id.menu_remove_account:
                 AccountArea.removeAccount();
-//                CharityArea.removeAccount();
-
                 return true;
 
             case android.R.id.home:
@@ -293,7 +288,12 @@ public class FlynDroid extends SlidingActivity {
                 break;
 
             case AccountArea.FB_SIGN_IN:
-                AccountArea.callbackManager.onActivityResult(requestCode, resultCode, data);
+                if(data.equals(null)){
+                    Log.e("FlynDroid ","data null get");
+                }else {
+                    AccountArea.callbackManager.onActivityResult(requestCode, resultCode, data);
+                }
+
 
                 break;
 

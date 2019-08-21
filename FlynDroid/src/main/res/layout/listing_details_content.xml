@@ -54,6 +54,7 @@
 					style="@style/whitebold_caption" />
 
 				<ImageView
+					android:visibility="gone"
 					android:id="@+id/icon_call"
 					android:src="@mipmap/call_ic"
 					android:layout_width="30dp"

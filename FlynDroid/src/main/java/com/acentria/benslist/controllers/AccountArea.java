@@ -132,6 +132,7 @@ public class AccountArea extends AbstractController {
         /* set content title */
         Config.context.setTitle(Account.loggedIn ? Lang.get("my_profile") : Title);
         FacebookSdk.sdkInitialize(Config.context);
+//
         /* add content view */
         Utils.addContentView(R.layout.view_account_area);
 
@@ -374,6 +375,9 @@ public class AccountArea extends AbstractController {
                                         formData.put("first_name", object.optString("first_name"));
                                         formData.put("last_name", object.optString("last_name"));
 
+//                                        Log.e(TAG, "onCompleted: fb name " +object.optString("name") );
+//                                        Log.e(TAG, "onCompleted: fb email" +object.optString("email") );
+
                                         /* show progressbar */
                                         final ProgressDialog progress = ProgressDialog.show(Config.context, null, Lang.get("loading"));
 
@@ -435,7 +439,7 @@ public class AccountArea extends AbstractController {
                                             }
                                         });
                                     } else {
-                                        Log.d("FD", "FB connect no user");
+                                        Log.d(TAG, "FB connect no user");
                                     }
                                 }
                             });

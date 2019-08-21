@@ -8,17 +8,16 @@
 
     <LinearLayout
         android:id="@+id/featured_container"
+        android:layout_above="@+id/mapHost"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/featured_shadow"
         android:orientation="vertical">
 
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swiperefresh"
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
 
             >
 
@@ -26,12 +25,13 @@
 
             <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="0dp">
+                android:layout_height="0dp"
+                >
 
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <android.support.v4.view.ViewPager
@@ -52,7 +52,7 @@
                         android:layout_height="@dimen/home_grid_size"
                         android:layout_below="@id/view_layout"
                         android:layout_alignParentBottom="true"
-                        android:layout_marginBottom="5dp"
+                        android:paddingBottom="4.5dp"
                         android:clickable="true"
                         android:columnWidth="@dimen/home_grid_column_width"
                         android:drawSelectorOnTop="true"
@@ -91,7 +91,7 @@
         android:layout_above="@+id/mapHost"
         android:background="@drawable/bottom_shadow"
         android:orientation="vertical"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <LinearLayout
         android:visibility="gone"
@@ -103,14 +103,13 @@
         android:orientation="vertical" />
 
     <RelativeLayout
+        android:visibility="visible"
         android:id="@+id/mapHost"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
+
         android:layout_alignParentBottom="true"
         android:clickable="true"
-        android:drawSelectorOnTop="true"
-
-        android:gravity="bottom"
         android:orientation="vertical">
 
         <!--<fragment-->
