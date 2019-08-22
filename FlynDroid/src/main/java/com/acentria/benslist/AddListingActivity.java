@@ -45,6 +45,7 @@ public class AddListingActivity extends AppCompatActivity {
     public static Payment payment;
     public static Intent intent;
     public static LinearLayout login_form;
+    public static AddListingActivity activity;
     public static LinearLayout category_options;
     private String TAG="AddListingActivity ";
 
@@ -72,7 +73,7 @@ public class AddListingActivity extends AppCompatActivity {
 
         if (!Account.loggedIn) {
             AccountArea.loginController = "AddListing";
-            AccountArea.loginForm(login_form, instance);
+            AccountArea.loginForm(login_form, instance,activity);
             login_form.setVisibility(View.VISIBLE);
             category_options.setVisibility(View.GONE);
 

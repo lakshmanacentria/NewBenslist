@@ -26,16 +26,21 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:textSize="16sp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:text="android_fb_login"
-                android:background="@drawable/shape_button_fb"
                 style="@style/orange_button" />
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/btn_sign_in"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"/>
 
             <com.acentria.benslist.elements.FlyTextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="android_or"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:tag="fbview"
                 style="@style/or_divider" />
 

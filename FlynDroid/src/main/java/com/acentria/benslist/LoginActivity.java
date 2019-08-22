@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -14,6 +15,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 
 public class LoginActivity extends AppCompatActivity {
     private static LoginActivity instance;
+    private String TAG=LoginActivity.this.getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +36,9 @@ public class LoginActivity extends AppCompatActivity {
         AccountArea.loginController = "login";
 
         LinearLayout layout = (LinearLayout) findViewById(R.id.login_form);
-        AccountArea.loginForm(layout, this);
+        AccountArea.loginForm(layout, this,LoginActivity.this);
 
+        Log.e(TAG, "onCreate: title" +Lang.get("android_login") );
 
 
     }

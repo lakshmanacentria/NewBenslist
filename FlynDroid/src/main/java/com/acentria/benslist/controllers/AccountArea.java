@@ -2,6 +2,7 @@ package com.acentria.benslist.controllers;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,11 +13,15 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -42,6 +47,7 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.acentria.benslist.Account;
+import com.google.android.gms.auth.api.Auth;
 import com.acentria.benslist.AddListingActivity;
 import com.acentria.benslist.Config;
 import com.acentria.benslist.CreateAccountActivity;
@@ -56,6 +62,16 @@ import com.acentria.benslist.ResetPasswordActivity;
 import com.acentria.benslist.SendFeedbackActivity;
 import com.acentria.benslist.Utils;
 import com.acentria.benslist.XMLParser;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.Api;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.viewpagerindicator.TabPageIndicator;
@@ -65,20 +81,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cz.msebera.android.httpclient.Header;
 
 import static com.acentria.benslist.AddListingActivity.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE;
+import static com.acentria.benslist.AddListingActivity.activity;
 
 
-public class AccountArea extends AbstractController {
+public class AccountArea extends AbstractController implements GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks {
 
     private static final String TAG = "AccountArea=> ";
     private static AccountArea instance;
@@ -98,9 +118,12 @@ public class AccountArea extends AbstractController {
 
     final public static int PROFILE_IMAGE = 4001;
     public static final int FB_SIGN_IN = 64206;
-    public static CallbackManager callbackManager;
+    public static CallbackManager callbackManager = CallbackManager.Factory.create();
 
     public static boolean loginSS = false;
+    public static GoogleApiClient mGoogleApiClient;
+    private static int request_code = 0;
+    public static final int RC_SIGN_IN = 007;
     //public FacebookConnect fb;
 
     public static AccountArea getInstance() {
@@ -154,7 +177,7 @@ public class AccountArea extends AbstractController {
             menu_remove_account.setVisible(true);
             Log.e(TAG, "user profile");
         } else {
-            loginForm(login_form, Config.context);
+            loginForm(login_form, Config.context, activity);
             Log.e(TAG, "userNot login");
         }
 
@@ -201,7 +224,7 @@ public class AccountArea extends AbstractController {
         return true;
     }
 
-    public static void loginForm(final LinearLayout login_form, final Context context) {
+    public static void loginForm(final LinearLayout login_form, final Context context, final AppCompatActivity activity) {
 
         /* create an account link handler */
         // make it underlined
@@ -337,131 +360,233 @@ public class AccountArea extends AbstractController {
             }
         });
 
+        /*fb and gplush integration code implements */
+
         /* fb button handler */
         String facebook_id = Config.context.getString(R.string.app_id);
-        if (Utils.getCacheConfig("facebookConnect_plugin").equals("1") && !facebook_id.isEmpty()) {
-            LoginButton fbLogin = (LoginButton) login_form.findViewById(R.id.fbLogin);
-            fbLogin.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+        Log.e(TAG, "loginForm: fb plugin " + Utils.getCacheConfig("facebookConnect_plugin"));
+//        if (Utils.getCacheConfig("facebookConnect_plugin").equals("1") && !facebook_id.isEmpty()) {
+        LoginButton fbLogin = (LoginButton) login_form.findViewById(R.id.fbLogin);
+        fbLogin.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
 
-            /* set related items visible */
-            fbLogin.setVisibility(View.VISIBLE);
-            login_form.findViewWithTag("fbview").setVisibility(View.VISIBLE);
+        /* set related items visible */
+        fbLogin.setVisibility(View.VISIBLE);
+        login_form.findViewWithTag("fbview").setVisibility(View.VISIBLE);
 
-            callbackManager = CallbackManager.Factory.create();
+        fbLogin.setReadPermissions(Arrays.asList("public_profile", "email"));
+        callbackManager = CallbackManager.Factory.create();
 
-            fbLogin.setReadPermissions(Arrays.asList("public_profile", "email"));
-            fbLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        fbLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
 
-                @Override
-                public void onSuccess(LoginResult loginResult) {
-                    GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(),
-                            new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(),
+                        new GraphRequest.GraphJSONObjectCallback() {
 
-                                @Override
-                                public void onCompleted(JSONObject object, GraphResponse response) {
-                                    // Application code
+                            @Override
+                            public void onCompleted(JSONObject object, GraphResponse response) {
+                                // Application code
 									/*Boolean ver = Boolean.parseBoolean(object.optString("verified"));
 									if ( !ver ) {
 										Dialog.simpleWarning(Lang.get("facebook_not_verified"), context);
 									}
 									else */
-                                    if (object != null) {
-                                        final HashMap<String, String> formData = new HashMap<String, String>();
-                                        formData.put("username", object.optString("name"));
-                                        formData.put("password", "will-be-generated");
-                                        formData.put("email", object.optString("email"));
-                                        formData.put("account_type", "will-be-set");
-                                        formData.put("fb_id", object.optString("id"));
-                                        formData.put("first_name", object.optString("first_name"));
-                                        formData.put("last_name", object.optString("last_name"));
+                                if (object != null) {
+                                    final HashMap<String, String> formData = new HashMap<String, String>();
+                                    formData.put("username", object.optString("name"));
+                                    formData.put("password", "will-be-generated");
+                                    formData.put("email", object.optString("email"));
+                                    formData.put("account_type", "will-be-set");
+                                    formData.put("fb_id", object.optString("id"));
+                                    formData.put("first_name", object.optString("first_name"));
+                                    formData.put("last_name", object.optString("last_name"));
 
-//                                        Log.e(TAG, "onCompleted: fb name " +object.optString("name") );
-//                                        Log.e(TAG, "onCompleted: fb email" +object.optString("email") );
+                                    Log.e(TAG, "onCompleted: fb name " + object.optString("name"));
+                                    Log.e(TAG, "onCompleted: fb payload for api formData" + formData);
 
-                                        /* show progressbar */
-                                        final ProgressDialog progress = ProgressDialog.show(Config.context, null, Lang.get("loading"));
+                                    /* show progressbar */
+                                    final ProgressDialog progress = ProgressDialog.show(Config.context, null, Lang.get("loading"));
 
-                                        /* do request */
-                                        AsyncHttpClient client = new AsyncHttpClient();
-                                        client.setTimeout(30000); // set 30 seconds for this task
+                                    /* do request */
+                                    AsyncHttpClient client = new AsyncHttpClient();
+                                    client.setTimeout(30000); // set 30 seconds for this task
 
-                                        final String url = Utils.buildRequestUrl("createAccount");
-                                        client.post(url, Utils.toParams(formData), new AsyncHttpResponseHandler() {
+                                    final String url = Utils.buildRequestUrl("createAccount");
+                                    Log.e(TAG, "onCompleted: fb account url" + url);
+                                    client.post(url, Utils.toParams(formData), new AsyncHttpResponseHandler() {
 
-                                            @Override
-                                            public void onSuccess(int statusCode, Header[] headers, byte[] server_response) {
-                                                // called when response HTTP status is "200 OK"
-                                                try {
-                                                    String response = String.valueOf(new String(server_response, "UTF-8"));
-                                                    /* hide progressbar */
-                                                    progress.dismiss();
+                                        @Override
+                                        public void onSuccess(int statusCode, Header[] headers, byte[] server_response) {
+                                            // called when response HTTP status is "200 OK"
+                                            try {
+                                                String response = String.valueOf(new String(server_response, "UTF-8"));
+                                                /* hide progressbar */
+                                                progress.dismiss();
 
-                                                    /* parse xml response */
-                                                    XMLParser parser = new XMLParser();
-                                                    Document doc = parser.getDomElement(response, url);
+                                                /* parse xml response */
+                                                XMLParser parser = new XMLParser();
+                                                Document doc = parser.getDomElement(response, url);
 
-                                                    if (doc == null) {
-                                                        Dialog.simpleWarning(Lang.get("returned_xml_failed"), context);
-                                                    } else {
-                                                        NodeList errorsNode = doc.getElementsByTagName("errors");
+                                                if (doc == null) {
+                                                    Dialog.simpleWarning(Lang.get("returned_xml_failed"), context);
+                                                } else {
+                                                    NodeList errorsNode = doc.getElementsByTagName("errors");
 
-                                                        /* handle errors */
-                                                        if (errorsNode.getLength() > 0) {
-                                                            Element element = (Element) errorsNode.item(0);
-                                                            NodeList errors = element.getChildNodes();
+                                                    /* handle errors */
+                                                    if (errorsNode.getLength() > 0) {
+                                                        Element element = (Element) errorsNode.item(0);
+                                                        NodeList errors = element.getChildNodes();
 
-                                                            if (errors.getLength() > 0) {
-                                                                Element error = (Element) errors.item(0);
-                                                                String key_error = error.getTextContent();
-                                                                if (key_error.equals("fb_email_exists")) {
-                                                                    checkFbPassword(formData, context);
-                                                                } else {
-                                                                    Dialog.simpleWarning(Lang.get(key_error), context);
-                                                                }
-                                                                LoginManager.getInstance().logOut();
+                                                        if (errors.getLength() > 0) {
+                                                            Element error = (Element) errors.item(0);
+                                                            String key_error = error.getTextContent();
+                                                            if (key_error.equals("fb_email_exists")) {
+                                                                checkFbPassword(formData, context);
+                                                            } else {
+                                                                Dialog.simpleWarning(Lang.get(key_error), context);
                                                             }
-                                                        }
-                                                        /* process login */
-                                                        else {
-                                                            NodeList accountNode = doc.getElementsByTagName("account");
-                                                            confirmLogin(accountNode);
+                                                            LoginManager.getInstance().logOut();
                                                         }
                                                     }
-
-                                                } catch (UnsupportedEncodingException e1) {
-
+                                                    /* process login */
+                                                    else {
+                                                        NodeList accountNode = doc.getElementsByTagName("account");
+                                                        confirmLogin(accountNode);
+                                                    }
                                                 }
-                                            }
 
-                                            @Override
-                                            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                                                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                                            } catch (UnsupportedEncodingException e1) {
+
                                             }
-                                        });
-                                    } else {
-                                        Log.d(TAG, "FB connect no user");
-                                    }
+                                        }
+
+                                        @Override
+                                        public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                                            // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                                        }
+                                    });
+                                } else {
+                                    Log.d(TAG, "FB connect no user");
                                 }
-                            });
-                    Bundle parameters = new Bundle();
-                    parameters.putString("fields", "id,name,email,gender,first_name,last_name,verified,birthday");
-                    request.setParameters(parameters);
-                    request.executeAsync();
+                            }
+                        });
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id,name,email,gender,first_name,last_name,verified,birthday");
+                request.setParameters(parameters);
+                request.executeAsync();
 
-                }
+            }
 
-                @Override
-                public void onCancel() {
+            @Override
+            public void onCancel() {
 
-                }
+            }
 
-                @Override
-                public void onError(FacebookException e) {
+            @Override
+            public void onError(FacebookException e) {
 
-                }
-            });
-        }
+            }
+        });
+//    }
+
+        /*gplush login implement*/
+
+        SignInButton btn_sign_in = (SignInButton) login_form.findViewById(R.id.btn_sign_in);
+        btn_sign_in.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                signOut();
+//                gplushLogin();
+            }
+        });
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+//          .enableAutoManage(activity,context.getApplicationContext())
+//        mGoogleApiClient = new GoogleApiClient.Builder(Config.context)
+//                .enableAutoManage(activity,getInstance())
+//                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+//                .build();
+
+
+//        GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+//        handleGoogleSignInResult(result);
+
     }
+
+    @SuppressLint("LongLogTag")
+    private static void handleGoogleSignInResult(GoogleSignInResult result) {
+        if (result.isSuccess()) {
+            // Signed in successfully, show authenticated UI.
+            GoogleSignInAccount acct = result.getSignInAccount();
+            String emailaddress = "", link = "", social_type = "", social_id = "", firstname, lastname;
+            Log.e(TAG, "displayname" + acct.getDisplayName());
+            //btnSignIn.setVisibility(View.GONE);
+
+            Log.e(TAG + " SuccessConnection", mGoogleApiClient.isConnected() + ""); //First Time log in false default
+            emailaddress = acct.getEmail();
+            link = "";
+            social_type = "GMAIL";
+            social_id = acct.getId();
+//            CommonMethod.setPrefrence(UserLoginActivity.this, "UserLogin", "true");
+
+            if (acct.getPhotoUrl() != null) {
+                link = acct.getPhotoUrl().toString();
+                Log.e(TAG, "handleGoogleSignInResult: profile link " + link);
+            }
+
+            String fullname = acct.getDisplayName();
+            String[] parts = fullname.split("\\s+");
+            if (parts.length == 2) {
+                firstname = parts[0];
+                lastname = parts[1];
+                Log.d("First-->", "" + firstname);
+                Log.d("Last-->", "" + lastname);
+            } else if (parts.length == 3) {
+                firstname = parts[0];
+                String middlename = parts[1];
+                lastname = parts[2];
+            }
+
+            Log.e(TAG, "handleGoogleSignInResult: " + social_id + social_type + emailaddress);
+//            serverRequestForCheckUser(social_id, social_type, emailaddress);
+
+
+            //updateUI(true);
+        } else {
+            // Log.e("econnection else :",mGoogleApiClient.isConnected()+"");
+
+            // Signed out, show unauthenticated UI.
+            // updateUI(false);
+            Log.d("Logger", "handleSignInResult : Fail");
+        }
+
+    }
+
+//    private static void gplushLogin() {
+//        request_code = 0;
+////        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+////        Config.context.startActivityForResult(signInIntent, RC_SIGN_IN);
+////        Log.e(TAG + "signin id", RC_SIGN_IN + "");
+//    }
+//
+//    private static void signOut() {
+////        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+////                new ResultCallback<Status>() {
+////                    @Override
+////                    public void onResult(Status status) {
+////                        Log.e(TAG, "onResult: " + status.getStatusMessage());
+////                    }
+////                });
+//    }
+
+
+
+
+
+    /*................................gplush and fb integration code closing*/
 
     public static void confirmLogin(NodeList accountNode) {
         loginSS = true;
@@ -615,13 +740,29 @@ public class AccountArea extends AbstractController {
 
                     Utils.removeContentView("MyListings");
                 }
-                loginForm(login_form, Config.context);
+                loginForm(login_form, Config.context, activity);
 
                 LoginManager.getInstance().logOut();
             }
         };
 
         Dialog.CustomDialog(Lang.get("logout"), Lang.get("confirm_logout"), null, listener);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
+        Toast.makeText(Config.context, connectionResult + "", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.e(TAG, "onConnected: " );
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
     }
 
 
@@ -979,7 +1120,7 @@ public class AccountArea extends AbstractController {
 
                                             Utils.removeContentView("MyListings");
                                         }
-                                        loginForm(login_form, Config.context);
+                                        loginForm(login_form, Config.context, activity);
 
                                         LoginManager.getInstance().logOut();
                                         dialog.dismiss();
@@ -1014,4 +1155,15 @@ public class AccountArea extends AbstractController {
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleGoogleSignInResult(result);
+            Log.e("signinresult :", result + "" + "\nresultcode =>" + resultCode + "");
+            if (mGoogleApiClient != null)
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+        }
+    }
 }

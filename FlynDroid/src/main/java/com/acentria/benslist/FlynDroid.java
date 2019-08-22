@@ -22,12 +22,16 @@ import com.acentria.benslist.controllers.MyPackages;
 import com.acentria.benslist.controllers.SavedSearch;
 import com.acentria.benslist.controllers.Search;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingActivity;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+
+import static com.acentria.benslist.controllers.AccountArea.mGoogleApiClient;
 
 public class FlynDroid extends SlidingActivity {
 
@@ -54,7 +58,7 @@ public class FlynDroid extends SlidingActivity {
             for (Signature signature : info.signatures) {
                 MessageDigest md = MessageDigest.getInstance("SHA");
                 md.update(signature.toByteArray());
-                Log.e("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+                Log.e("FlynDroid"+"KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         } catch (PackageManager.NameNotFoundException e) {
 
@@ -270,7 +274,9 @@ public class FlynDroid extends SlidingActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
+
 
         switch (requestCode) {
             case AccountArea.PROFILE_IMAGE:
@@ -288,13 +294,24 @@ public class FlynDroid extends SlidingActivity {
                 break;
 
             case AccountArea.FB_SIGN_IN:
-                if(data.equals(null)){
-                    Log.e("FlynDroid ","data null get");
-                }else {
-                    AccountArea.callbackManager.onActivityResult(requestCode, resultCode, data);
+                try {
+
+                        AccountArea.callbackManager.onActivityResult(requestCode, resultCode, data);
+
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
 
+                break;
 
+            case AccountArea.RC_SIGN_IN:
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                Log.e("FlyDroid ", "onActivityResult: "+result.isSuccess() );
+//                handleGoogleSignInResult(result);
+                Log.e("signinresult :", result + "" + "\nresultcode =>" + resultCode + "");
+                if(mGoogleApiClient!=null){
+                    Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                }
                 break;
 
             case Config.RESULT_PAYMENT:
