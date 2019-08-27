@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    android:background="@android:color/white"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/fab_margin"
+    android:paddingRight="@dimen/fab_margin">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="190dp"
+        android:layout_height="190dp"
+        android:src="@mipmap/seller_no_photo"
+        android:id="@+id/iv_profile"
+        app:civ_border_width="3dp"
+        app:civ_border_color="@color/about_app_link_color"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="username"
+        android:id="@+id/tv_username"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="email"
+        android:id="@+id/tv_email"
+        />
+
+
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/fbLogin"
+        style="@style/orange_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:paddingTop="@dimen/fab_margin"
+        android:paddingBottom="@dimen/fab_margin"
+        android:text="android_fb_login"
+        android:textSize="16sp"
+        android:visibility="visible" />
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/btn_gplush"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginBottom="20dp" />
+
+
+</LinearLayout>

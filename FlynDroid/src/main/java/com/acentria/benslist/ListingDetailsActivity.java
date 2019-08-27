@@ -23,7 +23,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -637,25 +639,31 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         detailsContainer.setGravity(Gravity.TOP);
 
         /* inflate details tab */
-        LinearLayout details = (LinearLayout) Config.context.getLayoutInflater()
+        final LinearLayout details = (LinearLayout) Config.context.getLayoutInflater()
                 .inflate(R.layout.listing_details, null);
         details.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
         /* set title */
         TextView title = (TextView) details.findViewById(R.id.title);
         title.setText(listingData.get("title"));
+        TextView tv_post_id = (TextView) details.findViewById(R.id.tv_post_id);
+        tv_post_id.setText(listingData.get("Listing_ID"));
+
+
 
         /* set price */
         TextView price = (TextView) details.findViewById(R.id.price);
         price.setText(listingData.get("price"));
         /*implement Chat textview to implement chat process start*/
         TextView tv_chat = (TextView) details.findViewById(R.id.tv_chat);
+        TextView tv_make_an_offer = (TextView) details.findViewById(R.id.tv_make_an_offer);
         ImageView icon_call = (ImageView) details.findViewById(R.id.icon_call);
         if (Utils.getSPConfig("accountUsername", "") != "" && Utils.getSPConfig("accountUsername", "") != null) {
 
             if (Lang.get("android_title_activity_listing_details").equalsIgnoreCase("Ad Details")) {
                 tv_chat.setVisibility(View.VISIBLE);
                 icon_call.setVisibility(View.VISIBLE);
+                tv_make_an_offer.setVisibility(View.VISIBLE);
                 Log.e(TAG, "drawListingDetails:chat visible bcz you are comes from > " + Lang.get("android_title_activity_listing_details"));
             }
         }
@@ -685,12 +693,51 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
 
             }
         });
+        tv_make_an_offer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final android.app.Dialog dialog = new android.app.Dialog(ListingDetailsActivity.this);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+                // Include dialog.xml file
+                dialog.setContentView(R.layout.dialog_make_anoffer_layout);
+                dialog.show();
+                Button btn_send = dialog.findViewById(R.id.btn_send);
+                ImageView iv_close = dialog.findViewById(R.id.iv_close);
+                final EditText et_price = dialog.findViewById(R.id.et_price);
+                final EditText et_type_massag = dialog.findViewById(R.id.et_type_message);
+                TextView tv_actual_price = dialog.findViewById(R.id.tv_actual_price);
+                tv_actual_price.setText("Actual Price: " + listingData.get("price"));
+
+                btn_send.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (et_price.getText().toString().isEmpty()) {
+                            et_price.setError("Please enter price");
+//                            Toast.makeText(ListingDetailsActivity.this, "Please enter price", Toast.LENGTH_LONG).show();
+                        } else {
+                            et_price.setError(null);
+                            /*call make an offer api*/
+                            dialog.dismiss();
+                        }
+
+
+                    }
+                });
+                iv_close.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
 
 
 
         /* gallery */
         LinearLayout gallery = (LinearLayout) details.findViewById(R.id.gallery);
-        populateGallary(gallery, photos);
+        populateGallary(gallery, photos, tv_post_id);
 
         /* listing details */
         if (fields.size() > 0) {
@@ -1375,10 +1422,11 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
     /**
      * populate gallery container
      *
-     * @param gallery - gallery view
-     * @param photos  - photos array
+     * @param gallery    - gallery viewListingDetailsActivity
+     * @param photos     - photos array
+     * @param tv_post_id
      */
-    public static void populateGallary(LinearLayout gallery, List<HashMap<String, String>> photos) {
+    public static void populateGallary(LinearLayout gallery, List<HashMap<String, String>> photos, TextView tv_post_id) {
         if (photos.size() > 0) {
             /* set gallery container visible */
             gallery.setVisibility(View.VISIBLE);
@@ -1407,6 +1455,8 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
 
                 ImageView image = (ImageView) container.findViewById(R.id.image);
                 Utils.imageLoaderDisc.displayImage(entry.get("Thumbnail"), image, Utils.imageLoaderOptionsDisc);
+                tv_post_id.setText(" Post ID:" + entry.get("Listing_ID"));
+
 
                 /* add listener */
                 image.setOnClickListener(new View.OnClickListener() {

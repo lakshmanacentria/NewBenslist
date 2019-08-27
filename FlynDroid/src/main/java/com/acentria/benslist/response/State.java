@@ -13,11 +13,11 @@ public class State {
     private String countryName;
 
 
-    public State(Country country, String stateName) {
-
-        this.country = country;
-        this.stateName = stateName;
-    }
+//    public State(Country country, String stateName) {
+//
+//        this.country = country;
+//        this.stateName = stateName;
+//    }
 
 
     public Country getCountry() {

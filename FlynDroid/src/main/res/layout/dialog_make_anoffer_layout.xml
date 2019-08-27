@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/tv_offer_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="Offer Price"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/category_text_size"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/iv_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:padding="@dimen/fab_margin"
+        android:src="@drawable/com_facebook_close" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_offer_price"
+        android:layout_margin="@dimen/fab_margin"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/fab_margin">
+
+        <TextView
+            android:id="@+id/tv_actual_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Actual Price: € 141,481"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/category_text_size" />
+
+        <EditText
+            android:id="@+id/et_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/round_rect_border"
+            android:hint="Enter Offer Price "
+            android:imeOptions="actionNext"
+            android:inputType="numberDecimal"
+            android:padding="10dp"
+            android:textSize="@dimen/category_text_size" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text=" * Offer price can not go down to 30-40% of the price"
+            android:textColor="@android:color/holo_red_dark" />
+
+        <EditText
+            android:id="@+id/et_type_message"
+            android:layout_width="match_parent"
+            android:layout_height="125dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/round_rect_border"
+            android:gravity="top|center_vertical"
+            android:hint="Type your message here"
+            android:imeOptions="actionDone"
+            android:padding="5dp"
+            android:textSize="@dimen/category_text_size" />
+
+
+        <Button
+            android:id="@+id/btn_send"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/about_app_link_color"
+            android:text="send"
+            android:textAllCaps="true"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>

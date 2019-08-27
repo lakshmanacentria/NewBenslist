@@ -314,6 +314,7 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
                                     countries.get(i).setCountryName("Please Select Country");
                                 }
                             }
+
                             Log.e(TAG, "FilerCountryArrayBefor pass in spiner adapter " + countries.get(0).getCountryName());
                             countryArrayAdapter = new ArrayAdapter<Country>(CharityDonateActivity.this, R.layout.simple_spinner_dropdown_item, countries);
                             CharityDonateActivity.this.runOnUiThread(new Runnable() {
@@ -387,6 +388,9 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
                             }
 
                             state_str = states.get(0).getStateName();
+                            State statepojo = new State(); /*add static value in pojo*/
+                            statepojo.setStateName("Please Select State");
+                            states.add(0, statepojo);/*upade value on first poition of arrarylist*/
                             Log.e(TAG, "FilerStateArray Befor pass in spiner adapter " + states.get(0).getCountryName() + "\nState name" + state_str);
                             stateArrayAdapter = new ArrayAdapter<State>(CharityDonateActivity.this, R.layout.simple_spinner_dropdown_item, states);
                             CharityDonateActivity.this.runOnUiThread(new Runnable() {
@@ -395,7 +399,7 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
                                     progressDialog.dismiss();
                                     spinner_select_state.setAdapter(stateArrayAdapter);
                                     /*call state api for for first set spinner state wise set city befor selected onItemsselect lisners*/
-                                    call_cityApi(states.get(0).getStateName(), states.get(0).getCountryName());
+//                                    call_cityApi(states.get(0).getStateName(), states.get(0).getCountryName());
 
                                 }
                             });
@@ -456,6 +460,10 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
                             }.getType();
                             cities = (new Gson()).fromJson(cityitemArray.toString(), type);
                             city_str = cities.get(0).getCityName();
+
+                            City citypojo = new City();
+                            citypojo.setCityName("Please Select City");
+                            cities.add(0, citypojo);
                             cityArrayAdapter = new ArrayAdapter<City>(CharityDonateActivity.this, R.layout.simple_spinner_dropdown_item, cities);
                             CharityDonateActivity.this.runOnUiThread(new Runnable() {
                                 @Override
@@ -735,7 +743,7 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
 
     private void call_charitydonat_api(String paymentdate, String id, String state_payment_status, String bussinesstype, String response_type) {
         String payer_id = Account.accountData.get("id");
-        Log.e(TAG, " befor sending Data on server=> "  +payer_id+"\n"+ref_no + mrs_str + "\n" + country_str + "\n" + state_str + "\n" + city_str + "\n" + ammount_withoutgood_str +
+        Log.e(TAG, " befor sending Data on server=> " + payer_id + "\n" + ref_no + mrs_str + "\n" + country_str + "\n" + state_str + "\n" + city_str + "\n" + ammount_withoutgood_str +
                 "\n" + fristname + lastname + "\n" + email_str + "" + telephone + "\n" + address + "\n" + keepme_str + "charity id" + charity_id);
 //        mqunatity = adatper.mlist.get(0).getManualQuanty();
 //        Log.e(TAG, "call_charitydonat_api: " + mqunatity);

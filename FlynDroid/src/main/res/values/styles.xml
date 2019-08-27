@@ -41,6 +41,11 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+    <style name="whitebold_caption_chat">
+        <item name="android:textColor">#EEECEC</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 
     <style name="black_title">
         <item name="android:textColor">#1b1b1b</item>

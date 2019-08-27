@@ -1218,7 +1218,7 @@ public class Forms {
 							collectTours(escortIndex, field_key, formData, locationItem);
 							places.release();
 						} else {
-							Log.d("FD", "Place not found.");
+							Log.e("Forms ", "Place not found.");
 						}
 					}
 				});

@@ -10,12 +10,12 @@ public class City  {
     @Expose
     private String cityName;
 
-    public City(/*int cityID*//*,*/ Country country, State state, String cityName) {
-//        this.cityID = cityID;
-        this.country = country;
-        this.state = state;
-        this.cityName = cityName;
-    }
+//    public City(/*int cityID*//*,*/ Country country, State state, String cityName) {
+////        this.cityID = cityID;
+//        this.country = country;
+//        this.state = state;
+//        this.cityName = cityName;
+//    }
 
     public Country getCountry() {
         return country;

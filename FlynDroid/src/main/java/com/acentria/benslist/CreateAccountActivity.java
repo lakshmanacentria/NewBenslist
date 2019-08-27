@@ -12,11 +12,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -24,16 +26,20 @@ import android.widget.Toast;
 
 import com.acentria.benslist.adapters.SpinnerAdapter;
 import com.acentria.benslist.controllers.AccountArea;
+import com.acentria.benslist.controllers.SocialRegistraionActivity;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -81,19 +87,22 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
 
     /*fb and gplush */
     private boolean is_selected = false;
-    private CallbackManager callbackManager;
+    private CallbackManager callbackManager = CallbackManager.Factory.create();
+
     private int resultcode = -1, request_code = 0;
     private int fbcode = 112;
     private String firstname, lastname, name, mobileNumber, social_id, link, emailaddress, password, social_type, passwordfb, countrycode = "", plush = "+", country;
     private GoogleApiClient mGoogleApiClient;
     public final static int RC_SIGN_IN = 007;
+    public static final int FB_SIGN_IN = 64206;
     private EditText username, email;
+    private ImageView iv_profile;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        FacebookSdk.sdkInitialize(getApplicationContext());
         instance = this;
         context = this;
         intent = getIntent();
@@ -108,8 +117,21 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         /* enable back action */
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        setFacebook_sdk();
+//        setFacebook_sdk();
+        username = (EditText) findViewById(R.id.username);
+        email = (EditText) findViewById(R.id.email);
+        iv_profile = (ImageView) findViewById(R.id.iv_profile);
+        if (getIntent().getExtras() != null) {
+            username.setText(getIntent().getStringExtra("username"));
+            email.setText(getIntent().getStringExtra("email"));
+            username.setSelection(username.getText().length());
+            email.setSelection(email.getText().length());
+            link = getIntent().getStringExtra("profile_url");
+            Glide.with(CreateAccountActivity.this).load(link).placeholder(R.mipmap.seller_no_photo).diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(iv_profile);
 
+            Log.e(TAG, "onCreate: from social page " + getIntent().getStringExtra("username") + "\n" + getIntent().getStringExtra("username") + "\nlink" + link);
+
+        }
         /* prepare account type spinner */
         final Spinner spinner = (Spinner) findViewById(R.id.type);
 
@@ -165,8 +187,6 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         });
 
 
-        username = (EditText) findViewById(R.id.username);
-        email = (EditText) findViewById(R.id.email);
         if (Utils.getCacheConfig("account_login_mode").equals("email")) {
             username.setVisibility(View.GONE);
         } else {
@@ -184,6 +204,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
 
                 // username
                 Matcher matcher = Pattern.compile("([a-zA-Z0-9\\-]+)").matcher(username.getText().toString());
+
                 if (!Utils.getCacheConfig("account_login_mode").equals("email")) {
                     if (username.getText().toString().isEmpty()) {
                         error = true;
@@ -193,11 +214,13 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                         error = true;
                         username.requestFocus();
                         username.setError(Lang.get("notice_reg_length").replace("{field}", Lang.get("android_hint_username")));
-                    } else if (!matcher.matches()) {
+                    } /*else if (!matcher.matches()) {   //this condition use for url wight space and alfphanumeric value add
                         error = true;
                         username.requestFocus();
                         username.setError(Lang.get("invalid_username"));
-                    } else {
+                        Log.e(TAG, "onClick matcher matches: " + Lang.get("invalid_username"));
+
+                    }*/ else {
                         formData.remove("username");
                         formData.put("username", username.getText().toString());
                     }
@@ -207,12 +230,22 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                 EditText password = (EditText) findViewById(R.id.password);
                 matcher = Pattern.compile("((?=.*\\d)(?=.*[a-z]).{5,20})").matcher(password.getText().toString());
 
-                if (!matcher.matches()) {
+               /* if (!matcher.matches()) {
                     if (!error) {
                         error = true;
                         password.requestFocus();
                         password.setError(Lang.get("password_weak"));
                     }
+                }*/
+                if (password.getText().toString().isEmpty()) {
+                    error = true;
+                    password.requestFocus();
+                    password.setError("please enter password");
+
+                } else if (password.getText().length() < 6) {
+                    error = true;
+                    password.requestFocus();
+                    password.setError("password max length is 6");
                 } else {
                     formData.remove("password");
                     formData.put("password", password.getText().toString());
@@ -243,6 +276,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                         if (!Forms.validate(formData, aFields.get(formData.get("account_type")), fieldViews)) {
                             error = true;
                         }
+                        Log.e(TAG, "onClick: " + Utils.getCacheConfig("android_second_step"));
+
                     }
                     if (agreementsFields != null && !agreementsFields.isEmpty() && !Forms.validate(formData, agreementsFields.get(formData.get("account_type")), fieldViews)) {
                         error = true;
@@ -261,6 +296,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                     client.setTimeout(30000); // set 30 seconds for this task
 
                     final String url = Utils.buildRequestUrl("createAccount");
+                    Log.e(TAG, "onClick: registration url" + url);
+                    Log.e(TAG, "onClick: send payload at registration " + formData);
                     client.post(url, Utils.toParams(formData), new AsyncHttpResponseHandler() {
 
                         @Override
@@ -324,9 +361,10 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             }
         });
 
-
+        hideSoftKeyboard();
         /*fb and gplush btn  initilization*/
         LoginButton fbLogin = (LoginButton) findViewById(R.id.fbLogin);
+
         SignInButton btn_gplush = (SignInButton) findViewById(R.id.btn_gplush);
         btn_gplush.setOnClickListener(this);
 
@@ -341,55 +379,53 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                 .build();
 
 
-        boolean loggedOut = AccessToken.getCurrentAccessToken() == null;
-
-        if (!loggedOut) {
-            if (Profile.getCurrentProfile() != null) {
-//                Glide.with(this).load(Profile.getCurrentProfile().getProfilePictureUri(200, 200)).into(imageView);
-                Log.d("TAG", "Username is: " + Profile.getCurrentProfile().getName());
-            }
-
-
-            //Using Graph API
-            getUserProfile(AccessToken.getCurrentAccessToken());
-        }
-
-        AccessTokenTracker fbTracker = new AccessTokenTracker() {
-            @Override
-            protected void onCurrentAccessTokenChanged(AccessToken accessToken, AccessToken accessToken2) {
-                if (accessToken2 == null) {
-                    username.setText(null);
-                    email.setText(null);
-//                    imageView.setImageResource(0);
-                    Toast.makeText(CreateAccountActivity.this, "User Logged Out.", Toast.LENGTH_LONG).show();
-                }
-            }
-        };
-        fbTracker.startTracking();
-
+        LoginManager.getInstance().logOut();
         fbLogin.setReadPermissions(Arrays.asList("email", "public_profile"));
         callbackManager = CallbackManager.Factory.create();
         fbLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                // App code
-                //loginResult.getAccessToken();
-                //loginResult.getRecentlyDeniedPermissions()
-                //loginResult.getRecentlyGrantedPermissions()
-                boolean loggedOut = AccessToken.getCurrentAccessToken() == null;
+                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        if (object != null) {
+                            final HashMap<String, String> formData = new HashMap<String, String>();
+                            formData.put("username", object.optString("name"));
+                            formData.put("password", "will-be-generated");
+                            formData.put("email", object.optString("email"));
+                            formData.put("account_type", "will-be-set");
+                            formData.put("fb_id", object.optString("id"));
+                            formData.put("first_name", object.optString("first_name"));
+                            formData.put("last_name", object.optString("last_name"));
 
-                if (!loggedOut) {
-                    if (Profile.getCurrentProfile() != null) {
-//                        Glide.with(CreateAccountActivity.this).load(Profile.getCurrentProfile().getProfilePictureUri(200, 200)).into(imageView);
-                        Log.d("TAG", "Username is: " + Profile.getCurrentProfile().getName());
+                            Log.e(TAG, "onCompleted: fb name " + object.optString("name"));
+                            Log.e(TAG, "onCompleted: fb payload for api formData" + formData);
+                            username.setText(object.optString("first_name") + "_" + object.optString("last_name"));
+                            email.setText(object.optString("email"));
+                            username.setSelection(username.length());
+                            email.setSelection(email.length());
+                            JSONObject json = response.getJSONObject();
+                            try {
+                                if (json != null) {
+                                    if (json.getJSONObject("picture").getJSONObject("data") != null)
+                                        link = json.getJSONObject("picture").getJSONObject("data").getString("url");
+                                    else
+                                        link = "";
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            Log.e(TAG, "onCompleted: fb profile" + link);
 
+                            Glide.with(CreateAccountActivity.this).load(link).placeholder(R.mipmap.seller_no_photo).diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(iv_profile);
+
+                        }
                     }
-
-
-                    //Using Graph API
-                    getUserProfile(AccessToken.getCurrentAccessToken());
-                }
-
+                });
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id,name,email,gender,first_name,last_name,verified,birthday,picture.width(150).height(150)");
+                request.setParameters(parameters);
+                request.executeAsync();
             }
 
             @Override
@@ -403,40 +439,9 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             }
         });
 
-
-
         /*end of oncreate*/
     }
 
-    private void getUserProfile(AccessToken currentAccessToken) {
-        GraphRequest request = GraphRequest.newMeRequest(
-                currentAccessToken, new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        Log.e("TAG", object.toString());
-                        try {
-                            String first_name = object.getString("first_name");
-                            String last_name = object.getString("last_name");
-                            String emailstr = object.getString("email");
-                            String id = object.getString("id");
-                            String image_url = "https://graph.facebook.com/" + id + "/picture?type=normal";
-
-                            username.setText("First Name: " + first_name + "\nLast Name: " + last_name + "\n" + image_url);
-                            email.setText(emailstr);
-//                            Glide.with(CreateAccountActivity.this).load(image_url).into(imageView);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                });
-
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "first_name,last_name,email,id");
-        request.setParameters(parameters);
-        request.executeAsync();
-    }
 
     private void setFacebook_sdk() {
         AppEventsLogger.activateApp(this);
@@ -597,13 +602,14 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                 if (mGoogleApiClient != null)
                     Auth.GoogleSignInApi.signOut(mGoogleApiClient);
                 break;
-            case 101:
+            case FB_SIGN_IN:
                 callbackManager.onActivityResult(requestCode, resultCode, data);
 //                RequestFbData();
                 break;
 
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -677,6 +683,8 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
 
             if (acct.getPhotoUrl() != null) {
                 link = acct.getPhotoUrl().toString();
+                Glide.with(CreateAccountActivity.this).load(link).placeholder(R.mipmap.seller_no_photo).diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(iv_profile);
+
 
             }
 
@@ -694,7 +702,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             }
             username.setText(firstname + lastname);
             email.setText(emailaddress);
-            Log.e(TAG, "handleGoogleSignInResult: " + social_id + social_type + emailaddress);
+            Log.e(TAG, "handleGoogleSignInResult: " + social_id + social_type + emailaddress + "\nlink" + link);
 
 //            serverRequestForCheckUser(social_id, social_type, emailaddress);
 
@@ -713,5 +721,15 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, connectionResult + "", Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Hides the soft keyboard
+     */
+    public void hideSoftKeyboard() {
+        if (getCurrentFocus() != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
     }
 }

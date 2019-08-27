@@ -98,7 +98,7 @@ import static com.acentria.benslist.AddListingActivity.MY_PERMISSIONS_REQUEST_RE
 import static com.acentria.benslist.AddListingActivity.activity;
 
 
-public class AccountArea extends AbstractController implements GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks {
+public class AccountArea extends AbstractController implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     private static final String TAG = "AccountArea=> ";
     private static AccountArea instance;
@@ -239,6 +239,18 @@ public class AccountArea extends AbstractController implements GoogleApiClient.O
             }
         });
 
+        TextView social_registration = (TextView) login_form.findViewById(R.id.social_registration);
+        social_registration.setText("Create an Social Account");
+        social_registration.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Config.context, SocialRegistraionActivity.class);
+                Config.context.startActivity(intent);
+            }
+        });
+
+
+
         /* reset password link handler */
         TextView reset_link = (TextView) login_form.findViewById(R.id.reset_password);
         reset_link.setPaintFlags(reset_link.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
@@ -291,6 +303,7 @@ public class AccountArea extends AbstractController implements GoogleApiClient.O
                     params.put("username", username.getText().toString());
                     params.put("password", passwordHash);
                     final String url = Utils.buildRequestUrl("loginAttempt", params, null);
+                    Log.e(TAG, "onClick: loginApi" + url);
 
                     /* do request */
                     AsyncHttpClient client = new AsyncHttpClient();
@@ -301,6 +314,7 @@ public class AccountArea extends AbstractController implements GoogleApiClient.O
                             // called when response HTTP status is "200 OK"
                             try {
                                 String response = String.valueOf(new String(server_response, "UTF-8"));
+                                Log.e(TAG, "onSuccess: " + response);
                                 login_progress.dismiss();
                                 /* parse xml response */
                                 XMLParser parser = new XMLParser();
@@ -354,6 +368,7 @@ public class AccountArea extends AbstractController implements GoogleApiClient.O
                         @Override
                         public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
                             // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+
                         }
                     });
                 }
@@ -365,144 +380,144 @@ public class AccountArea extends AbstractController implements GoogleApiClient.O
         /* fb button handler */
         String facebook_id = Config.context.getString(R.string.app_id);
         Log.e(TAG, "loginForm: fb plugin " + Utils.getCacheConfig("facebookConnect_plugin"));
-//        if (Utils.getCacheConfig("facebookConnect_plugin").equals("1") && !facebook_id.isEmpty()) {
-        LoginButton fbLogin = (LoginButton) login_form.findViewById(R.id.fbLogin);
-        fbLogin.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+        if (Utils.getCacheConfig("facebookConnect_plugin").equals("1") && !facebook_id.isEmpty()) {
+            LoginButton fbLogin = (LoginButton) login_form.findViewById(R.id.fbLogin);
+            fbLogin.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
 
-        /* set related items visible */
-        fbLogin.setVisibility(View.VISIBLE);
-        login_form.findViewWithTag("fbview").setVisibility(View.VISIBLE);
+            /* set related items visible */
+            fbLogin.setVisibility(View.VISIBLE);
+            login_form.findViewWithTag("fbview").setVisibility(View.VISIBLE);
 
-        fbLogin.setReadPermissions(Arrays.asList("public_profile", "email"));
-        callbackManager = CallbackManager.Factory.create();
+            fbLogin.setReadPermissions(Arrays.asList("public_profile", "email"));
+            callbackManager = CallbackManager.Factory.create();
 
-        fbLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            fbLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
 
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(),
-                        new GraphRequest.GraphJSONObjectCallback() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(),
+                            new GraphRequest.GraphJSONObjectCallback() {
 
-                            @Override
-                            public void onCompleted(JSONObject object, GraphResponse response) {
-                                // Application code
+                                @Override
+                                public void onCompleted(JSONObject object, GraphResponse response) {
+                                    // Application code
 									/*Boolean ver = Boolean.parseBoolean(object.optString("verified"));
 									if ( !ver ) {
 										Dialog.simpleWarning(Lang.get("facebook_not_verified"), context);
 									}
 									else */
-                                if (object != null) {
-                                    final HashMap<String, String> formData = new HashMap<String, String>();
-                                    formData.put("username", object.optString("name"));
-                                    formData.put("password", "will-be-generated");
-                                    formData.put("email", object.optString("email"));
-                                    formData.put("account_type", "will-be-set");
-                                    formData.put("fb_id", object.optString("id"));
-                                    formData.put("first_name", object.optString("first_name"));
-                                    formData.put("last_name", object.optString("last_name"));
+                                    if (object != null) {
+                                        final HashMap<String, String> formData = new HashMap<String, String>();
+                                        formData.put("username", object.optString("name"));
+                                        formData.put("password", "will-be-generated");
+                                        formData.put("email", object.optString("email"));
+                                        formData.put("account_type", "will-be-set");
+                                        formData.put("fb_id", object.optString("id"));
+                                        formData.put("first_name", object.optString("first_name"));
+                                        formData.put("last_name", object.optString("last_name"));
 
-                                    Log.e(TAG, "onCompleted: fb name " + object.optString("name"));
-                                    Log.e(TAG, "onCompleted: fb payload for api formData" + formData);
+                                        Log.e(TAG, "onCompleted: fb name " + object.optString("name"));
+                                        Log.e(TAG, "onCompleted: fb payload for api formData" + formData);
 
-                                    /* show progressbar */
-                                    final ProgressDialog progress = ProgressDialog.show(Config.context, null, Lang.get("loading"));
+                                        /* show progressbar */
+                                        final ProgressDialog progress = ProgressDialog.show(Config.context, null, Lang.get("loading"));
 
-                                    /* do request */
-                                    AsyncHttpClient client = new AsyncHttpClient();
-                                    client.setTimeout(30000); // set 30 seconds for this task
+                                        /* do request */
+                                        AsyncHttpClient client = new AsyncHttpClient();
+                                        client.setTimeout(30000); // set 30 seconds for this task
 
-                                    final String url = Utils.buildRequestUrl("createAccount");
-                                    Log.e(TAG, "onCompleted: fb account url" + url);
-                                    client.post(url, Utils.toParams(formData), new AsyncHttpResponseHandler() {
+                                        final String url = Utils.buildRequestUrl("createAccount");
+                                        Log.e(TAG, "onCompleted: fb account url" + url);
+                                        client.post(url, Utils.toParams(formData), new AsyncHttpResponseHandler() {
 
-                                        @Override
-                                        public void onSuccess(int statusCode, Header[] headers, byte[] server_response) {
-                                            // called when response HTTP status is "200 OK"
-                                            try {
-                                                String response = String.valueOf(new String(server_response, "UTF-8"));
-                                                /* hide progressbar */
-                                                progress.dismiss();
+                                            @Override
+                                            public void onSuccess(int statusCode, Header[] headers, byte[] server_response) {
+                                                // called when response HTTP status is "200 OK"
+                                                try {
+                                                    String response = String.valueOf(new String(server_response, "UTF-8"));
+                                                    /* hide progressbar */
+                                                    progress.dismiss();
 
-                                                /* parse xml response */
-                                                XMLParser parser = new XMLParser();
-                                                Document doc = parser.getDomElement(response, url);
+                                                    /* parse xml response */
+                                                    XMLParser parser = new XMLParser();
+                                                    Document doc = parser.getDomElement(response, url);
 
-                                                if (doc == null) {
-                                                    Dialog.simpleWarning(Lang.get("returned_xml_failed"), context);
-                                                } else {
-                                                    NodeList errorsNode = doc.getElementsByTagName("errors");
+                                                    if (doc == null) {
+                                                        Dialog.simpleWarning(Lang.get("returned_xml_failed"), context);
+                                                    } else {
+                                                        NodeList errorsNode = doc.getElementsByTagName("errors");
 
-                                                    /* handle errors */
-                                                    if (errorsNode.getLength() > 0) {
-                                                        Element element = (Element) errorsNode.item(0);
-                                                        NodeList errors = element.getChildNodes();
+                                                        /* handle errors */
+                                                        if (errorsNode.getLength() > 0) {
+                                                            Element element = (Element) errorsNode.item(0);
+                                                            NodeList errors = element.getChildNodes();
 
-                                                        if (errors.getLength() > 0) {
-                                                            Element error = (Element) errors.item(0);
-                                                            String key_error = error.getTextContent();
-                                                            if (key_error.equals("fb_email_exists")) {
-                                                                checkFbPassword(formData, context);
-                                                            } else {
-                                                                Dialog.simpleWarning(Lang.get(key_error), context);
+                                                            if (errors.getLength() > 0) {
+                                                                Element error = (Element) errors.item(0);
+                                                                String key_error = error.getTextContent();
+                                                                if (key_error.equals("fb_email_exists")) {
+                                                                    checkFbPassword(formData, context);
+                                                                } else {
+                                                                    Dialog.simpleWarning(Lang.get(key_error), context);
+                                                                }
+                                                                LoginManager.getInstance().logOut();
                                                             }
-                                                            LoginManager.getInstance().logOut();
+                                                        }
+                                                        /* process login */
+                                                        else {
+                                                            NodeList accountNode = doc.getElementsByTagName("account");
+                                                            confirmLogin(accountNode);
                                                         }
                                                     }
-                                                    /* process login */
-                                                    else {
-                                                        NodeList accountNode = doc.getElementsByTagName("account");
-                                                        confirmLogin(accountNode);
-                                                    }
+
+                                                } catch (UnsupportedEncodingException e1) {
+
                                                 }
-
-                                            } catch (UnsupportedEncodingException e1) {
-
                                             }
-                                        }
 
-                                        @Override
-                                        public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                                            // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-                                        }
-                                    });
-                                } else {
-                                    Log.d(TAG, "FB connect no user");
+                                            @Override
+                                            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                                                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                                            }
+                                        });
+                                    } else {
+                                        Log.d(TAG, "FB connect no user");
+                                    }
                                 }
-                            }
-                        });
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,email,gender,first_name,last_name,verified,birthday");
-                request.setParameters(parameters);
-                request.executeAsync();
+                            });
+                    Bundle parameters = new Bundle();
+                    parameters.putString("fields", "id,name,email,gender,first_name,last_name,verified,birthday");
+                    request.setParameters(parameters);
+                    request.executeAsync();
 
-            }
+                }
 
-            @Override
-            public void onCancel() {
+                @Override
+                public void onCancel() {
 
-            }
+                }
 
-            @Override
-            public void onError(FacebookException e) {
+                @Override
+                public void onError(FacebookException e) {
 
-            }
-        });
+                }
+            });
 //    }
 
-        /*gplush login implement*/
+            /*gplush login implement*/
 
-        SignInButton btn_sign_in = (SignInButton) login_form.findViewById(R.id.btn_sign_in);
-        btn_sign_in.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            SignInButton btn_sign_in = (SignInButton) login_form.findViewById(R.id.btn_sign_in);
+            btn_sign_in.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
 //                signOut();
 //                gplushLogin();
-            }
-        });
+                }
+            });
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build();
 
 //          .enableAutoManage(activity,context.getApplicationContext())
 //        mGoogleApiClient = new GoogleApiClient.Builder(Config.context)
@@ -514,6 +529,7 @@ public class AccountArea extends AbstractController implements GoogleApiClient.O
 //        GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
 //        handleGoogleSignInResult(result);
 
+        }
     }
 
     @SuppressLint("LongLogTag")
@@ -757,7 +773,7 @@ public class AccountArea extends AbstractController implements GoogleApiClient.O
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.e(TAG, "onConnected: " );
+        Log.e(TAG, "onConnected: ");
     }
 
     @Override

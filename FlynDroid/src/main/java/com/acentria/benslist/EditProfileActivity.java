@@ -139,6 +139,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                 params.put("account_id", Account.accountData.get("id"));
                                 params.put("password_hash", Utils.getSPConfig("accountPassword", null));
                                 final String url = Utils.buildRequestUrl("updateProfileEmail", params, null);
+                                Log.e(TAG, "onClick: api url " + url);
 
                                 /* do async request */
                                 AsyncHttpClient client = new AsyncHttpClient();
@@ -151,7 +152,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                             String response = String.valueOf(new String(server_response, "UTF-8"));
                                             /* dismiss progress dialog */
                                             progress.dismiss();
-
+                                            Log.e(TAG, "onSuccess: response " + response);
                                             /* parse response */
                                             XMLParser parser = new XMLParser();
                                             Document doc = parser.getDomElement(response, url);

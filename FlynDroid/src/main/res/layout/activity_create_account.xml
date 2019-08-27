@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ca_parent"
     style="@style/content_side_padding"
     android:layout_width="match_parent"
@@ -17,6 +18,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/iv_profile"
+                android:layout_width="190dp"
+                android:layout_height="190dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/fab_margin"
+                android:layout_marginBottom="@dimen/fab_margin"
+                android:src="@mipmap/seller_no_photo"
+                app:civ_border_color="@color/about_app_link_color"
+                app:civ_border_width="3dp" />
 
             <com.acentria.benslist.elements.FlyEditText
                 android:id="@+id/username"
@@ -95,9 +107,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/fab_margin"
                 android:paddingTop="@dimen/fab_margin"
+                android:paddingBottom="@dimen/fab_margin"
                 android:text="android_fb_login"
                 android:textSize="16sp"
-                android:paddingBottom="@dimen/fab_margin"
                 android:visibility="visible" />
 
 

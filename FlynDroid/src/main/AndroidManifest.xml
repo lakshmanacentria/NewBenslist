@@ -183,6 +183,7 @@
             android:name="com.acentria.benslist.CreateAccountActivity"
             android:configChanges="locale|keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_blank"
+            android:windowSoftInputMode="stateHidden"
             android:theme="@style/Theme.FlynaxDefault" />
         <activity
             android:name="com.acentria.benslist.ResetPasswordActivity"
@@ -303,10 +304,17 @@
             android:label=""
             android:theme="@style/Theme.FlynaxDefault"
             android:windowSoftInputMode="stateHidden"
-
             />
         <activity
             android:name=".chatprocess.ChatinPostActivity"
+            android:configChanges="locale|keyboardHidden|orientation|screenSize"
+            android:label=""
+            android:theme="@style/Theme.FlynaxDefault"
+            android:windowSoftInputMode="stateHidden"
+
+            />
+        <activity
+            android:name=".controllers.SocialRegistraionActivity"
             android:configChanges="locale|keyboardHidden|orientation|screenSize"
             android:label=""
             android:theme="@style/Theme.FlynaxDefault"

@@ -264,6 +264,7 @@ public class CreateFoodFrag extends Fragment implements View.OnClickListener {
             }
         });
     }
+
     /*call state Api and set data on  state spinner*/
     private void call_StateApi(final String countryName) {
 
@@ -308,6 +309,10 @@ public class CreateFoodFrag extends Fragment implements View.OnClickListener {
 
                             }
 
+                            State statepojo = new State(); /*add static value at 0 postion or first position at runtime*/
+                            statepojo.setStateName("Please Select State");
+                            states.add(0, statepojo); /*add static value pass on adpter */
+
                             state_str = states.get(0).getStateName();
                             Log.e(TAG, "FilerStateArray Befor pass in spiner adapter " + states.get(0).getCountryName() + "\nState name" + state_str);
                             stateArrayAdapter = new ArrayAdapter<State>(getActivity(), R.layout.simple_spinner_dropdown_item, states);
@@ -340,6 +345,7 @@ public class CreateFoodFrag extends Fragment implements View.OnClickListener {
 
 
     }
+
     /*call city Api and set date on city spinner */
     private void call_cityApi(String stateName, String countryName) {
 
@@ -377,6 +383,10 @@ public class CreateFoodFrag extends Fragment implements View.OnClickListener {
                             }.getType();
                             cities = (new Gson()).fromJson(cityitemArray.toString(), type);
                             city_str = cities.get(0).getCityName();
+
+                            City citypojo = new City(); /*set static 0 position value initilize */
+                            citypojo.setCityName("Please Select City");
+                            cities.add(0, citypojo);  /*set static value into dynamic list pass on adatper*/
                             cityArrayAdapter = new ArrayAdapter<City>(getActivity(), R.layout.simple_spinner_dropdown_item, cities);
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override

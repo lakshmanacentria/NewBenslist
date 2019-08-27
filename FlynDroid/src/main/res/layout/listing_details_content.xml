@@ -23,6 +23,12 @@
 				android:layout_height="wrap_content"        
 		        android:text="Listing Title"
 		        style="@style/black_title" />
+			<TextView
+				android:id="@+id/tv_post_id"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="post id"
+				style="@style/black_title" />
 		    
 		    <LinearLayout
 			    android:layout_width="fill_parent"
@@ -46,12 +52,33 @@
 					android:singleLine="true"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:paddingTop="3dp"
+					android:paddingTop="2dp"
+					android:paddingBottom="2dp"
 					android:background="@color/about_app_link_color"
 					android:text="Chat"
 					android:gravity="center"
 					android:layout_weight="1"
-					style="@style/whitebold_caption" />
+					style="@style/whitebold_caption_chat" />
+
+				<TextView
+
+					android:id="@+id/tv_make_an_offer"
+					style="@style/whitebold_caption_chat"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="3dp"
+					android:layout_marginRight="3dp"
+					android:layout_weight="1"
+					android:background="@color/about_app_link_color"
+					android:ellipsize="end"
+					android:gravity="center"
+					android:paddingTop="2dp"
+					android:paddingBottom="2dp"
+					android:singleLine="true"
+
+					android:text="Make an offer"
+					android:visibility="gone" />
+
 
 				<ImageView
 					android:visibility="gone"
@@ -59,6 +86,7 @@
 					android:src="@mipmap/call_ic"
 					android:layout_width="30dp"
 					android:layout_height="30dp"
+					android:paddingBottom="3dp"
 					android:layout_gravity="center|center_vertical"
 					style="@style/details_header_icon" />
 				<ImageView
