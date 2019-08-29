@@ -23,10 +23,10 @@ import java.util.List;
 public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdapter.ViewHolder> {
     private String TAG = Marchent_ListAdapter.class.getName();
     private Context mcontext;
-    private List<MarchentListResponse> mlist=new ArrayList<>();
-    private List<ChatPostResponse> mlist_chatpost=new ArrayList<>();
+    private List<MarchentListResponse> mlist = new ArrayList<>();
+    private List<ChatPostResponse> mlist_chatpost = new ArrayList<>();
     private OnClickPosi monClickPosi;
-    private boolean mischatpost ;
+    private boolean mischatpost;
     private String linke_url = "";
 
     /*for */
@@ -60,25 +60,34 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
             if (mischatpost) {
 
 //                if (mlist_chatpost.size() > 0) {
-                    holder.tv_description.setVisibility(View.VISIBLE);
-                    holder.tv_description.setText(mlist_chatpost.get(position).getJobPosition() + "");
-                    holder.tvmarchent_name.setText(mlist_chatpost.get(position).getTitle());
-                    Log.e(TAG, "marchentname" + mlist_chatpost.get(position).getTitle());
-                    /*https://www.benslist.com/files/05-2019/ad182/thumb_15567757831380865109.jpeg*/
-                    linke_url = "https://www.benslist.com/files/" + mlist_chatpost.get(position).getMainPhoto();
-                    Log.e(TAG, "url" + linke_url);
+                holder.tv_description.setVisibility(View.VISIBLE);
+                holder.tv_description.setText(mlist_chatpost.get(position).getJobPosition() + "");
+                holder.tvmarchent_name.setText(mlist_chatpost.get(position).getTitle());
+                Log.e(TAG, "marchentname" + mlist_chatpost.get(position).getTitle());
+                /*https://www.benslist.com/files/05-2019/ad182/thumb_15567757831380865109.jpeg*/
+                linke_url = "https://www.benslist.com/files/" + mlist_chatpost.get(position).getMainPhoto();
+                Log.e(TAG, "url" + linke_url);
 
-                    Glide.with(mcontext).load(linke_url).placeholder(R.mipmap.seller_no_photo).diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(holder.img_profile);
+                Glide.with(mcontext).load(linke_url).placeholder(R.mipmap.seller_no_photo).diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(holder.img_profile);
 
-                    holder.constrain_parent.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
+                holder.constrain_parent.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-                            monClickPosi.OnPosiClieck(position, mlist_chatpost.get(position).getUserId(), mlist_chatpost.get(position).getMerchantId(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
-                        }
-                    });
+                        monClickPosi.OnPosiClieck(position, mlist_chatpost.get(position).getUserId(), mlist_chatpost.get(position).getMerchantId(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
+                    }
+                });
 //                }
 
+            holder.tv_delete.setImageResource(R.mipmap.delete_chat_ic);
+                holder.tv_delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.e(TAG, "onClick: "+"delete chat" );
+                        monClickPosi.OnPosiClieck(position, "delete_chat", mlist_chatpost.get(position).getMerchantId(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
+
+                    }
+                });
             } else {
                 holder.tvmarchent_name.setText(mlist.get(position).getUsername());
                 Log.e(TAG, "marchentname" + mlist.get(position).getUsername());
@@ -87,6 +96,16 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
                     @Override
                     public void onClick(View v) {
                         monClickPosi.OnPosiClieck(position, "user_loginid", mlist.get(position).getId(), "postidnot use", mlist.get(position).getUsername());
+                    }
+                });
+
+                holder.tv_delete.setImageResource(R.mipmap.ban_admin);
+                holder.tv_delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        monClickPosi.OnPosiClieck(position, "user_loginid", mlist.get(position).getId(), "blockAdmin", mlist.get(position).getUsername());
+
+                        Log.e(TAG, "onClick: "+"block admin" );
                     }
                 });
             }
@@ -110,7 +129,7 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private ImageView img_profile;
+        private ImageView img_profile, tv_delete;
         private TextView tvmarchent_name, tv_description;
         private ConstraintLayout constrain_parent;
 
@@ -120,6 +139,8 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
             tvmarchent_name = itemView.findViewById(R.id.tvmarchent_name);
             tv_description = itemView.findViewById(R.id.tv_description);
             constrain_parent = itemView.findViewById(R.id.constrain_parent);
+            tv_delete = itemView.findViewById(R.id.tv_delete);
+
         }
     }
 

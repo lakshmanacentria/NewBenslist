@@ -99,6 +99,7 @@ public class AccountDetailsActivity extends AppCompatActivity implements OnMapRe
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         setTitle(Lang.get("android_title_activity_account_details"));
+        Log.e(TAG, "onCreate: Title " + Lang.get("android_title_activity_account_details"));
         setContentView(R.layout.activity_account_details);
 
         LinearLayout content = (LinearLayout) findViewById(R.id.account_details);
@@ -279,6 +280,7 @@ public class AccountDetailsActivity extends AppCompatActivity implements OnMapRe
         }
     }
 
+    @SuppressLint("LongLogTag")
     public static void prepareDetails(String response, String url) {
         /* parse xml response */
         XMLParser parser = new XMLParser();
@@ -311,8 +313,10 @@ public class AccountDetailsActivity extends AppCompatActivity implements OnMapRe
                 if (node.getTagName().equals("fields")) {
                     NodeList sellerFields = node.getChildNodes();
 
+
                     for (int j = 0; j < sellerFields.getLength(); j++) {
                         Element fieldNode = (Element) sellerFields.item(j);
+                        Log.e(TAG, "prepareDetails: " + fieldNode);
                         HashMap<String, String> fieldHash = new HashMap<String, String>();
                         fieldHash.put("key", fieldNode.getAttribute("key"));
                         fieldHash.put("name", fieldNode.getAttribute("name"));
@@ -321,6 +325,28 @@ public class AccountDetailsActivity extends AppCompatActivity implements OnMapRe
 
                         accountFields.add(fieldHash);
                     }
+
+//                    if (node.getTagName().equals("email")) {
+//                        accountData.put("email", node.getTextContent());
+                    /*addd email in dynameic payload */
+                    HashMap<String, String> emaimap = new HashMap<>();
+                    emaimap.put("key", "email");
+                    emaimap.put("name", "email");
+                    emaimap.put("type", "text");
+                    emaimap.put("value", accountData.get("email"));
+                    if (accountFields.size() > 2) {
+                        accountFields.add(2, emaimap);
+                    } else if (accountFields.size() == 2) {
+                        accountFields.add(2, emaimap);
+                    } else if (accountFields.size() == 1) {
+                        accountFields.add(1, emaimap);
+                    } else {
+                        accountFields.add(0, emaimap);
+                    }
+                    /*email Aproch close*/
+//                    }
+
+
                 }
 
                 /* get seller listings */

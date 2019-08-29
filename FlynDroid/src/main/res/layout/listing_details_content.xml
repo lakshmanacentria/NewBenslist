@@ -1,222 +1,268 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/listing_details"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:scrollbars="none"
-	android:layout_weight="1">
-	
-	<LinearLayout
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical">
-		
-	    <LinearLayout
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-		    android:orientation="vertical"
-		    android:background="@drawable/details_header">
-		    
-		    <TextView
-				android:id="@+id/title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"        
-		        android:text="Listing Title"
-		        style="@style/black_title" />
-			<TextView
-				android:id="@+id/tv_post_id"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="post id"
-				style="@style/black_title" />
-		    
-		    <LinearLayout
-			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:orientation="horizontal">
-			    
-			    <TextView
-			        android:id="@+id/price"
-			        android:ellipsize="end"
-        			android:singleLine="true"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:paddingTop="3dp"
-			        android:text=""
-			        android:layout_weight="1"
-			        style="@style/price" />
-				<TextView
-					android:visibility="gone"
-					android:id="@+id/tv_chat"
-					android:ellipsize="end"
-					android:singleLine="true"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:paddingTop="2dp"
-					android:paddingBottom="2dp"
-					android:background="@color/about_app_link_color"
-					android:text="Chat"
-					android:gravity="center"
-					android:layout_weight="1"
-					style="@style/whitebold_caption_chat" />
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:scrollbars="none">
 
-				<TextView
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-					android:id="@+id/tv_make_an_offer"
-					style="@style/whitebold_caption_chat"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginLeft="3dp"
-					android:layout_marginRight="3dp"
-					android:layout_weight="1"
-					android:background="@color/about_app_link_color"
-					android:ellipsize="end"
-					android:gravity="center"
-					android:paddingTop="2dp"
-					android:paddingBottom="2dp"
-					android:singleLine="true"
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/details_header"
+            android:orientation="vertical">
 
-					android:text="Make an offer"
-					android:visibility="gone" />
+            <TextView
+                android:id="@+id/title"
+                style="@style/black_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Listing Title" />
+
+            <TextView
+                android:id="@+id/tv_post_id"
+                style="@style/black_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ad id" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/price"
+                    style="@style/price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:paddingTop="3dp"
+                    android:singleLine="true"
+                    android:text="" />
+                <!--<TextView-->
+                <!--android:visibility="gone"-->
+                <!--android:id="@+id/tv_chat"-->
+                <!--android:ellipsize="end"-->
+                <!--android:singleLine="true"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:paddingTop="3dp"-->
+                <!--android:background="@color/about_app_link_color"-->
+                <!--android:text="Chat"-->
+                <!--android:gravity="center"-->
+                <!--android:layout_weight="1"-->
+                <!--style="@style/whitebold_caption_chat" />-->
+
+                <!--<TextView-->
+
+                <!--android:id="@+id/tv_make_an_offer"-->
+                <!--style="@style/whitebold_caption_chat"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginLeft="3dp"-->
+                <!--android:layout_marginRight="3dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="@color/about_app_link_color"-->
+                <!--android:ellipsize="end"-->
+                <!--android:gravity="center"-->
+                <!--android:paddingTop="3dp"-->
+                <!--android:paddingBottom="2dp"-->
+                <!--android:singleLine="true"-->
+
+                <!--android:text="Make an offer"-->
+                <!--android:visibility="gone" />-->
 
 
-				<ImageView
-					android:visibility="gone"
-					android:id="@+id/icon_call"
-					android:src="@mipmap/call_ic"
-					android:layout_width="30dp"
-					android:layout_height="30dp"
-					android:paddingBottom="3dp"
-					android:layout_gravity="center|center_vertical"
-					style="@style/details_header_icon" />
-				<ImageView
-			        android:id="@+id/icon_comments"
-			        android:src="@mipmap/details_icon_comments"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        style="@style/details_header_icon" />
-				
-				<ImageView
-			        android:id="@+id/icon_share"
-			        android:src="@drawable/icon_share_state"
-			        android:clickable="true"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        style="@style/details_header_icon" />
-				
-				<ImageView
-			        android:id="@+id/icon_like"
-			        android:src="@mipmap/details_icon_like"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        style="@style/details_header_icon" />
-					
-			</LinearLayout>
-		         
-		</LinearLayout>
-	    
-	    <LinearLayout
-	        android:id="@+id/main_details"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
-	
-			<HorizontalScrollView
-			    android:id="@+id/horizontal_scroll"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:background="#d4d4d4"
-				android:scrollbars="none"
-				android:fillViewport="true">
-		
-				<LinearLayout
-					android:id="@+id/gallery"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:orientation="horizontal"
-					android:paddingTop="5dp"
-					android:paddingBottom="5dp"
-					android:visibility="gone"
-					style="@style/content_side_padding" />
-		
-			</HorizontalScrollView>
-		
-			<LinearLayout
-			    android:id="@+id/fields_table"
-				android:layout_width="fill_parent"
-		    	android:layout_height="wrap_content"
-		    	android:orientation="vertical"
-		    	android:paddingBottom="25dp" />
+                <ImageView
+                    android:id="@+id/icon_call"
+                    style="@style/details_header_icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center|center_vertical"
+                    android:paddingBottom="3dp"
+                    android:src="@mipmap/call_ic"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/icon_comments"
+                    style="@style/details_header_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/details_icon_comments" />
+
+                <ImageView
+                    android:id="@+id/icon_share"
+                    style="@style/details_header_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:src="@drawable/icon_share_state" />
+
+                <ImageView
+                    android:id="@+id/icon_like"
+                    style="@style/details_header_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/details_icon_like" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_chat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="@dimen/standard_margin"
+                android:paddingBottom="@dimen/standard_margin"
+                android:visibility="gone"
+                android:weightSum="2">
+
+
+                <TextView
+                    android:id="@+id/tv_chat"
+                    style="@style/whitebold_caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/about_app_link_color"
+
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:padding="@dimen/standard_margin"
+                    android:singleLine="true"
+                    android:text="Chat"
+                    android:visibility="visible" />
+
+                <TextView
+
+                    android:id="@+id/tv_make_an_offer"
+                    style="@style/whitebold_caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/about_app_link_color"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:padding="@dimen/standard_margin"
+                    android:singleLine="true"
+
+                    android:text="Make an offer"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/main_details"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <HorizontalScrollView
+                android:id="@+id/horizontal_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#d4d4d4"
+                android:fillViewport="true"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/gallery"
+                    style="@style/content_side_padding"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:visibility="gone" />
+
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:id="@+id/fields_table"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="25dp" />
 
             <com.acentria.benslist.elements.FlyButton
                 android:id="@+id/edit_listing_button"
+                style="@style/orange_button"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:layout_marginBottom="25dp"
                 android:layout_gravity="center"
+                android:layout_marginBottom="25dp"
                 android:background="@drawable/shape_button"
                 android:text="edit_listing_button"
-                android:visibility="gone"
-                style="@style/orange_button" />
-			
-		</LinearLayout>
+                android:visibility="gone" />
 
-	    <LinearLayout
-	        android:id="@+id/comments_view"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/comments_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <include
                 android:id="@+id/comments_divider"
                 layout="@layout/fieldset" />
-			
-	        <LinearLayout
-		        android:id="@+id/comments"
-				android:layout_width="fill_parent"
-				android:layout_height="fill_parent"
-				android:orientation="vertical">		
-				
-			</LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/comments"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical">
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/see_comments_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="right"
                 android:layout_gravity="right"
-                android:paddingRight="20dp"
-				android:paddingEnd="20dp">
-	            		
+                android:gravity="right"
+                android:orientation="horizontal"
+                android:paddingEnd="20dp"
+                android:paddingRight="20dp">
+
                 <TextView
                     android:id="@+id/see_more_comments"
+                    style="@style/static_link"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:paddingBottom="15dp"
                     android:paddingTop="15dp"
-                    android:textSize="16dp"
-                    style="@style/static_link"
-                    android:text="See more"/>
+                    android:paddingBottom="15dp"
+                    android:text="See more"
+                    android:textSize="16dp" />
 
             </LinearLayout>
-			
-			<com.acentria.benslist.elements.FlyButton
-			    android:id="@+id/add_comment"
-		        style="@style/orange_button"
-		        android:layout_width="wrap_content"
-		        android:layout_height="40dp"
-		        android:layout_marginBottom="15dp" 
-                android:layout_marginTop="10dip"
+
+            <com.acentria.benslist.elements.FlyButton
+                android:id="@+id/add_comment"
+                style="@style/orange_button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
                 android:layout_marginLeft="5dip"
+                android:layout_marginTop="10dip"
                 android:layout_marginRight="5dip"
-		        android:layout_gravity="center"         
-		        android:background="@drawable/shape_button"
-		        android:text="add_comment" />
-			
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/shape_button"
+                android:text="add_comment" />
+
         </LinearLayout>
 
-	</LinearLayout>
+    </LinearLayout>
 
 </ScrollView>

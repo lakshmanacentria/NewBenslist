@@ -47,6 +47,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
@@ -99,8 +100,11 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
     public static ArrayList<HashMap<String, String>> videos;
 
     private static HashMap<String, String> sellerData;
+
     //	private static HashMap<String, String> locationData;
     private static ArrayList<HashMap<String, String>> sellerFields;
+
+    private static HashMap<String, String> emailhashmap = new HashMap<>();
     private LinearLayout content;
 
     private AsyncHttpClient client;
@@ -147,6 +151,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         sellerData = new HashMap<String, String>();
 //        locationData = new HashMap<String, String>();
         sellerFields = new ArrayList<HashMap<String, String>>();
+
 
         content = (LinearLayout) findViewById(R.id.activity_details);
         // set ad sense
@@ -549,6 +554,8 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         listingData.put("id", ldListingID);
 
         JSONObject json = null;
+        JSONObject object_email = null;
+//        JsonObject email_payload = null;
         try {
             json = new JSONObject(response);
 
@@ -574,11 +581,40 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                 /* get seller */
                 if (!json.isNull("seller")) {
                     sellerData = JSONParser.parseJson(json.getString("seller"));
+                    object_email = new JSONObject(json.getString("seller"));
+                    String email = object_email.getString("email");
+
+
+                    emailhashmap.put("key", "email");
+                    emailhashmap.put("name", "email");
+                    emailhashmap.put("type", "text");
+                    emailhashmap.put("value", email);
+
+                    Log.e(TAG, "prepareDetails: create emailhashmap" + emailhashmap);
+
+
                 }
 
                 /* get seller fields */
                 if (!json.isNull("seller_fields")) {
+
                     sellerFields = JSONParser.parseJsontoArrayList(json.getString("seller_fields"));
+                    Log.e(TAG, "prepareDetails: seller fields arrary" + json.getString("seller_fields"));
+
+                    if (sellerFields.size() > 2) {
+                        sellerFields.add(2, emailhashmap);
+                    } else if (sellerFields.size() == 2) {
+                        sellerFields.add(2, emailhashmap);
+                    } else if (sellerFields.size() == 1) {
+                        sellerFields.add(1, emailhashmap);
+                    } else {
+                        sellerFields.add(0, emailhashmap);
+                    }
+
+                    for (int i = 0; i < sellerFields.size(); i++) {
+                        Log.e(TAG, "prepareDetails: " + sellerFields.get(i));
+                    }
+
                 }
 
                 /* get comments */
@@ -652,18 +688,20 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
 
 
         /* set price */
-        TextView price = (TextView) details.findViewById(R.id.price);
+        final TextView price = (TextView) details.findViewById(R.id.price);
         price.setText(listingData.get("price"));
         /*implement Chat textview to implement chat process start*/
         TextView tv_chat = (TextView) details.findViewById(R.id.tv_chat);
         TextView tv_make_an_offer = (TextView) details.findViewById(R.id.tv_make_an_offer);
         ImageView icon_call = (ImageView) details.findViewById(R.id.icon_call);
+        LinearLayout ll_chat = (LinearLayout) details.findViewById(R.id.ll_chat);
         if (Utils.getSPConfig("accountUsername", "") != "" && Utils.getSPConfig("accountUsername", "") != null) {
 
             if (Lang.get("android_title_activity_listing_details").equalsIgnoreCase("Ad Details")) {
-                tv_chat.setVisibility(View.VISIBLE);
+//                tv_chat.setVisibility(View.VISIBLE);
                 icon_call.setVisibility(View.VISIBLE);
-                tv_make_an_offer.setVisibility(View.VISIBLE);
+//                tv_make_an_offer.setVisibility(View.VISIBLE);
+                ll_chat.setVisibility(View.VISIBLE);
                 Log.e(TAG, "drawListingDetails:chat visible bcz you are comes from > " + Lang.get("android_title_activity_listing_details"));
             }
         }
@@ -708,17 +746,47 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                 final EditText et_type_massag = dialog.findViewById(R.id.et_type_message);
                 TextView tv_actual_price = dialog.findViewById(R.id.tv_actual_price);
                 tv_actual_price.setText("Actual Price: " + listingData.get("price"));
+                String actualprice = listingData.get("price");
+                String splitprice[] = actualprice.split("$");
+                String pricesptfrist = "", pricesptsecond = "";
+                if (splitprice.length == 2) {
+                    pricesptfrist = splitprice[0];
+                    pricesptsecond = splitprice[1];
+                }
+
+                Log.e(TAG, "onClick: splite " + pricesptfrist + "\n " + pricesptsecond);
+//                splitprice[1] = splitprice[1].trim();
+
+
+//                double thirty_ = 30, fourty = 40, grand = 100;
+//                final double offer_30per = Double.parseDouble(splitprice[1]) * thirty_ / grand;
+//                final double offer_40per = Double.parseDouble(listingData.get("price")) * fourty / grand;
+//                Log.e(TAG, "onClick:offerprice offer_30per " + offer_30per + "\noffer_40per " + offer_40per);
 
                 btn_send.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (et_price.getText().toString().isEmpty()) {
                             et_price.setError("Please enter price");
-//                            Toast.makeText(ListingDetailsActivity.this, "Please enter price", Toast.LENGTH_LONG).show();
-                        } else {
+
+                        } /*else if (offer_30per > Double.parseDouble(et_price.getText().toString()) *//*|| offer_40per > Integer.parseInt(et_price.getText().toString())*//*) {
+                            et_price.setError("enter offer price between 30% to40% ");
+                        }*/ else if (et_type_massag.getText().toString().isEmpty()) {
                             et_price.setError(null);
+                            et_type_massag.setError("type message filed required ");
                             /*call make an offer api*/
+
+                        } else {
+                            et_type_massag.setError(null);
                             dialog.dismiss();
+                            Utils.hideKeyboard(et_price);
+                            if (Utils.isOnline(ListingDetailsActivity.this)) {
+                                call_makeAnOfferApi(listingData.get("price"), et_price.getText().toString(), et_type_massag.getText().toString());
+
+                            } else {
+                                Toast.makeText(instance, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
+                            }
+
                         }
 
 
@@ -943,6 +1011,83 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                 Utils.setSPConfig("favoriteIDs", favoriteIDs);
             }
         });
+    }
+
+    private void call_makeAnOfferApi(String Actualprice, String price, String type_message) {
+        final ProgressDialog progressDialog = new ProgressDialog(instance);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMessage("Loading...");
+        if (intent.getStringExtra("id").isEmpty()) {
+            return;
+        }
+        OkHttpClient okHttpClient = new OkHttpClient();
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("uid", intent.getStringExtra("id"))
+                .addFormDataPart("postids", instance.getIntent().getStringExtra("id"))
+                .addFormDataPart("offerprice", price)
+                .addFormDataPart("offermessage", type_message)
+                .build();
+        final Request request = new Request.Builder()
+                .url("https://benslist.com/offerPriceApi.inc.php")
+                .post(requestBody)
+                .build();
+        progressDialog.show();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        Log.e(TAG, "error");
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    if (response.isSuccessful()) {
+                        String is_response = response.body().string();
+                        Log.e(TAG, "onResponse: make an offer" + is_response);
+                        if (!is_response.equalsIgnoreCase("{}")) {
+
+                            final JSONObject jsonObject = new JSONObject(is_response);
+                            Log.e(TAG, "onResponse: result " + jsonObject.getString("success"));
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        progressDialog.dismiss();
+                                        if (jsonObject.getString("success").equalsIgnoreCase("success")) {
+                                            Toast.makeText(instance, "Offer has been submitted successfully", Toast.LENGTH_LONG).show();
+
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
+                        } else {
+                            progressDialog.dismiss();
+                            Log.e(TAG, "onResponse of make an offer: failure");
+                        }
+
+                    } else {
+                        progressDialog.dismiss();
+                        Log.e(TAG, "onResponse of make an offer: unscussess");
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
     }
 
     private void call_getContactApi() {
@@ -1266,6 +1411,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         sellerName.setText(sellerData.get("name"));
 
         /* seller fields */
+
         if (sellerFields.size() > 0) {
             LinearLayout fieldsTable = (LinearLayout) sellerInfo.findViewById(R.id.fields_table);
             int index = 0;
@@ -1455,7 +1601,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
 
                 ImageView image = (ImageView) container.findViewById(R.id.image);
                 Utils.imageLoaderDisc.displayImage(entry.get("Thumbnail"), image, Utils.imageLoaderOptionsDisc);
-                tv_post_id.setText(" Post ID:" + entry.get("Listing_ID"));
+                tv_post_id.setText(" Ad ID:" + entry.get("Listing_ID"));
 
 
                 /* add listener */

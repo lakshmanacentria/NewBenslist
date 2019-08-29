@@ -22,6 +22,7 @@ import com.acentria.benslist.R;
 import com.acentria.benslist.Utils;
 import com.acentria.benslist.response.MarchentListResponse;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
@@ -34,11 +35,14 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import retrofit2.http.Multipart;
 
 public class MarchentListActivity extends AppCompatActivity implements Marchent_ListAdapter.OnClickPosi {
 
@@ -173,7 +177,7 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
                                 progressDialog.dismiss();
                                 rv_recyclerviw.setVisibility(View.GONE);
                                 tv_no_records.setVisibility(View.VISIBLE);
-                                tv_no_records.setText("No record found");
+                                tv_no_records.setText("There is no visitor yet");
                                 Log.e(TAG, "arrary blank get" + respo);
                             }
                         });
@@ -214,10 +218,26 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
         Log.e(TAG, "OnPosiClieck " + pos + "\tUserlogin id " + user_login_id + "\t marchent_id" + marchentid + "\tpost_id " + post_id + "\tusername" + username);
         if (!is_chatpost) {
             if (!accountname.equalsIgnoreCase("Seller")) {
-                startActivity(new Intent(this, ChatPostListActivity.class).putExtra("merchant_id", marchentid).putExtra("user_name", username)
-                        .putExtra("account_name", accountname));
+                /*byer side login*/
+
+                if (post_id.equalsIgnoreCase("blockAdmin")) {
+//                    Toast.makeText(this, "Block user", Toast.LENGTH_LONG).show();
+                    if (Utils.isOnline(this)) {
+                        callBlockuseruserApi(marchentid);
+
+                    } else {
+                        Toast.makeText(MarchentListActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    startActivity(new Intent(this, ChatPostListActivity.class).putExtra("merchant_id", marchentid).putExtra("user_name", username)
+                            .putExtra("account_name", accountname));
+
+                }
+
 
             } else {
+                /*saller side login*/
+
                 startActivity(new Intent(this, ChatPostListActivity.class).putExtra("merchant_id", marchentid).putExtra("user_name", username)
                         .putExtra("account_name", accountname));
 
@@ -228,10 +248,85 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
 
     }
 
+    private void callBlockuseruserApi(String other_id) {
+        Log.e(TAG, "callBlockuseruserApi: other_id " + other_id + "\nloginid " + Account.accountData.get("id"));
+        OkHttpClient okHttpClient = new OkHttpClient();
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("loginid", Account.accountData.get("id"))
+                .addFormDataPart("otherid", other_id)
+                .build();
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        JsonObject jsonpayload = new JsonObject();
+        jsonpayload.addProperty("loginid", Account.accountData.get("id"));
+        jsonpayload.addProperty("otherid", other_id);
+        Log.e(TAG, "callBlockuseruserApi: jsonpayload " + jsonpayload);
+
+
+        RequestBody body = RequestBody.create(JSON, String.valueOf(jsonpayload));
+
+        Request request = new Request.Builder()
+                .url("https://benslist.com/chatMessageBlockUserApi.inc.php")
+                .post(body)
+                .build();
+
+//        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://benslist.com/chatMessageBlockUserApi.inc.php").newBuilder();
+//        urlBuilder.addQueryParameter("loginid", Account.accountData.get("id"));
+//        urlBuilder.addQueryParameter("otherid", other_id);
+//        String url = urlBuilder.build().toString();
+//
+//        Request request = new Request.Builder()
+//                .url(url)
+//                .build();
+
+
+        progressDialog.show();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        Toast.makeText(MarchentListActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    if (response.isSuccessful()) {
+                        String rResponse = response.body().string();
+                        Log.e(TAG, "onResponse: " + rResponse);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.dismiss();
+//                                Toast.makeText(MarchentListActivity.this, "block admin", Toast.LENGTH_LONG).show();
+                                Utils.isAlertBox(MarchentListActivity.this, "Chat history delete", "");
+                            }
+                        });
+//
+
+                    } else {
+                        progressDialog.dismiss();
+                        Toast.makeText(MarchentListActivity.this, getResources().getString(R.string.server_error), Toast.LENGTH_LONG).show();
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        });
+
+    }
+
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         /*not use*/
-
 
     }
 }

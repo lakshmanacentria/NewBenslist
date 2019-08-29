@@ -1,5 +1,6 @@
 package com.acentria.benslist.chatprocess;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -225,12 +227,77 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
         if (is_chatpost) {
             /*  got to next screnen*/
             Log.e(TAG, "got to next ChatHistoryActivity");
-            startActivity(new Intent(this, ChatHistoryActivity.class).putExtra("user_id", user_login_id)
-                    .putExtra("merchant_id", marchentid).putExtra("post_id", post_id).putExtra("username", username)
-                    .putExtra("account_name", account_name));
-
+            if (user_login_id.equalsIgnoreCase("delete_chat")) {
+//                Toast.makeText(ChatPostListActivity.this, "delete chat", Toast.LENGTH_LONG).show();
+                if (Utils.isOnline(this)) {
+                    call_delete_chathistory(marchentid, post_id);
+                } else {
+                    Toast.makeText(ChatPostListActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
+                }
+            } else {
+                startActivity(new Intent(this, ChatHistoryActivity.class).putExtra("user_id", user_login_id)
+                        .putExtra("merchant_id", marchentid).putExtra("post_id", post_id).putExtra("username", username)
+                        .putExtra("account_name", account_name));
+            }
         }
         /*Only come if becone this actvity send ischatpost boolean true than we need only call true condition*/
+    }
+
+    private void call_delete_chathistory(String marchent_id, String post_id) {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        RequestBody formBody = new FormBody.Builder()
+                .add("uid", Account.accountData.get("id"))
+                .add("mid", marchent_id)
+                .add("postid", post_id)
+                .build();
+        final Request request = new Request.Builder().url("https://benslist.com/offerPriceApi.inc.php").post(formBody).build();
+//        Response response = okHttpClient.newCall(request).execute();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        Toast.makeText(ChatPostListActivity.this, getResources().getString(R.string.server_error), Toast.LENGTH_LONG).show();
+
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+
+                    try {
+                        String mResponse = response.body().string();
+                        JSONObject jsonObject = new JSONObject(mResponse);
+                        final String result = jsonObject.getString("success");
+                        Log.e(TAG, "onResponse: " + mResponse);
+
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.dismiss();
+                                if (result.equalsIgnoreCase("success")) {
+                                    Utils.isAlertBox(ChatPostListActivity.this, "", "Chat history delete successfully");
+                                }
+
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    progressDialog.dismiss();
+                    Log.e(TAG, "onResponse:  " + getResources().getString(R.string.server_error));
+                }
+
+            }
+        });
+
+
     }
 
     @Override
