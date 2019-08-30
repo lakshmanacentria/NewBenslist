@@ -245,13 +245,23 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
 
     private void call_delete_chathistory(String marchent_id, String post_id) {
         OkHttpClient okHttpClient = new OkHttpClient();
-        RequestBody formBody = new FormBody.Builder()
-                .add("uid", Account.accountData.get("id"))
-                .add("mid", marchent_id)
-                .add("postid", post_id)
+//        RequestBody formBody = new FormBody.Builder()
+//                .add("uid", Account.accountData.get("id"))
+//                .add("mid", marchent_id)
+//                .add("postid", post_id)
+//                .build();
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("uid", Account.accountData.get("id"))
+                .addFormDataPart("mid", marchent_id)
+                .addFormDataPart("postid", post_id)
                 .build();
-        final Request request = new Request.Builder().url("https://benslist.com/offerPriceApi.inc.php").post(formBody).build();
+        final Request request = new Request.Builder().
+                url("https://benslist.com/chatPostDeleteApi.inc.php")
+                .post(requestBody).build();
 //        Response response = okHttpClient.newCall(request).execute();
+
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {

@@ -26,8 +26,7 @@ import java.util.Random;
 import static com.facebook.GraphRequest.TAG;
 
 
-public class GcmIntentService extends IntentService
-{
+public class GcmIntentService extends IntentService {
     private final String TAG="GcmIntentService=> ";
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;

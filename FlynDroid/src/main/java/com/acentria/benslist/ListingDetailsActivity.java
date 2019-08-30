@@ -691,7 +691,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         final TextView price = (TextView) details.findViewById(R.id.price);
         price.setText(listingData.get("price"));
         /*implement Chat textview to implement chat process start*/
-        TextView tv_chat = (TextView) details.findViewById(R.id.tv_chat);
+        final TextView tv_chat = (TextView) details.findViewById(R.id.tv_chat);
         TextView tv_make_an_offer = (TextView) details.findViewById(R.id.tv_make_an_offer);
         ImageView icon_call = (ImageView) details.findViewById(R.id.icon_call);
         LinearLayout ll_chat = (LinearLayout) details.findViewById(R.id.ll_chat);
@@ -702,6 +702,10 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                 icon_call.setVisibility(View.VISIBLE);
 //                tv_make_an_offer.setVisibility(View.VISIBLE);
                 ll_chat.setVisibility(View.VISIBLE);
+                if (sellerData.get("ID").equalsIgnoreCase(Account.accountData.get("id"))) {
+                    tv_chat.setVisibility(View.INVISIBLE);
+                }
+
                 Log.e(TAG, "drawListingDetails:chat visible bcz you are comes from > " + Lang.get("android_title_activity_listing_details"));
             }
         }
@@ -724,10 +728,16 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
             @Override
             public void onClick(View v) {
 //                Toast.makeText(instance, "Chat process", Toast.LENGTH_LONG).show();
-                if (!ldListingID.isEmpty()) {
-                    instance.startActivity(new Intent(instance, ChatinPostActivity.class).putExtra("post_id", instance.getIntent().getStringExtra("id")));
-                    Log.e("onClick: ", "postid" + instance.getIntent().getStringExtra("id") + " ldListingID" + ldListingID);
+                if (tv_chat.getVisibility() == View.VISIBLE) {
+                    if (!ldListingID.isEmpty()) {
+
+                        instance.startActivity(new Intent(instance, ChatinPostActivity.class).putExtra("post_id", instance.getIntent().getStringExtra("id"))
+                                .putExtra("seller_ID", sellerData.get("ID")));
+
+                        Log.e("onClick: ", "postid" + instance.getIntent().getStringExtra("id") + " ldListingID" + ldListingID + "\nSellerData " + sellerData.get("ID"));
+                    }
                 }
+
 
             }
         });

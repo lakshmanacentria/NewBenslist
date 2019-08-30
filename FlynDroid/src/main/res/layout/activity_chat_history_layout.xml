@@ -41,49 +41,59 @@
         android:visibility="gone" />
 
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="3px"
-        android:layout_above="@id/ll_bottom"
-        android:background="#F302BCD4" />
-
     <LinearLayout
+        android:visibility="visible"
         android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@android:color/white"
-        android:orientation="horizontal"
-        android:paddingLeft="16dp"
-        android:visibility="visible">
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3px"
+            android:layout_above="@id/ll_bottom"
+            android:background="#F302BCD4" />
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:visibility="visible">
 
 
-        <EditText
-            android:id="@+id/et_send_massage"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@null"
-            android:editable="true"
-            android:focusable="true"
-            android:hint="Type massage..."
-            android:imeActionId="@+id/send"
-            android:lines="8"
-            android:maxLines="10"
-            android:minLines="1"
-            android:padding="10dp"
-            android:scrollbars="vertical"
-            android:singleLine="true"
-            android:textColor="@android:color/black"
-            tools:ignore="InvalidImeActionId" />
+            <EditText
+                android:id="@+id/et_send_massage"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:editable="true"
+                android:focusable="true"
+                android:hint="Type massage..."
+                android:imeActionId="@+id/send"
+                android:lines="8"
+                android:maxLines="10"
+                android:minLines="1"
+                android:padding="10dp"
+                android:scrollbars="vertical"
+                android:singleLine="true"
+                android:textColor="@android:color/black"
+                tools:ignore="InvalidImeActionId" />
 
-        <ImageView
-            android:id="@+id/iv_send"
-            android:layout_width="50dp"
-            android:layout_height="60dp"
-            android:padding="10dp"
-            android:src="@mipmap/ic_send" />
+            <ImageView
+                android:id="@+id/iv_send"
+                android:layout_width="50dp"
+                android:layout_height="60dp"
+                android:padding="10dp"
+                android:src="@mipmap/ic_send" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 

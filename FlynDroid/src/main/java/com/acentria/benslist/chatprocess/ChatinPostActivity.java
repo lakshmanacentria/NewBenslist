@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ import okhttp3.Response;
 public class ChatinPostActivity extends AppCompatActivity implements View.OnClickListener {
     private String user_id, merchant_id, post_id = "", usernameformarchent, account_name;
     private RecyclerView rv_recyclerviw;
+    private LinearLayout ll_bottom;
     private TextView tv_no_records;
     private ImageView iv_send;
     private EditText et_send_massage;
@@ -69,6 +71,7 @@ public class ChatinPostActivity extends AppCompatActivity implements View.OnClic
         user_id = Account.accountData.get("id");
         if (getIntent().getExtras() != null) {
             post_id = getIntent().getStringExtra("post_id");
+            merchant_id = getIntent().getStringExtra("seller_ID");
         }
 
         et_send_massage = findViewById(R.id.et_send_massage);
@@ -76,18 +79,83 @@ public class ChatinPostActivity extends AppCompatActivity implements View.OnClic
         iv_send.setOnClickListener(this);
         rv_recyclerviw = findViewById(R.id.rv_recyclerviw);
         tv_no_records = findViewById(R.id.tv_no_records);
+        ll_bottom = findViewById(R.id.ll_bottom);
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setMessage("Loading...");
 
         if (Utils.isOnline(this)) {
-            call_chat_historyApi();
+            checkuserblockORnot_callApi();
+//            call_chat_historyApi();
         } else {
             rv_recyclerviw.setVisibility(View.GONE);
             tv_no_records.setVisibility(View.VISIBLE);
             tv_no_records.setText(getResources().getString(R.string.network_connection_error));
         }
+
+    }
+
+    private void checkuserblockORnot_callApi() {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("loginid", user_id)
+                .addFormDataPart("otherid", merchant_id)
+                .build();
+        Request request = new Request.Builder()
+                .url("https://www.benslist.com/chatMessageBlockUserApi.inc.php")
+                .post(requestBody)
+                .build();
+        progressDialog.show();
+
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        Log.e(TAG, "error");
+                        rv_recyclerviw.setVisibility(View.GONE);
+                        tv_no_records.setVisibility(View.VISIBLE);
+                        tv_no_records.setText(getResources().getString(R.string.server_error));
+                        ll_bottom.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    final String mResponse = response.body().string();
+                    Log.e(TAG, "user block onResponse: " + mResponse);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressDialog.dismiss();
+                            if (mResponse.equalsIgnoreCase("0")) {
+                                if (Utils.isOnline(ChatinPostActivity.this)) {
+                                    call_chat_historyApi();
+                                } else {
+                                    Toast.makeText(ChatinPostActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
+                                }
+                            } else {
+                                rv_recyclerviw.setVisibility(View.GONE);
+                                tv_no_records.setVisibility(View.VISIBLE);
+                                tv_no_records.setText("This user has been blocked you");
+                                Log.e(TAG, "user bolock set" + mResponse);
+                                ll_bottom.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
 
     }
 
@@ -132,7 +200,7 @@ public class ChatinPostActivity extends AppCompatActivity implements View.OnClic
                         rv_recyclerviw.setVisibility(View.GONE);
                         tv_no_records.setVisibility(View.VISIBLE);
                         tv_no_records.setText(getResources().getString(R.string.server_error));
-                        Toast.makeText(ChatinPostActivity.this, getResources().getString(R.string.server_error), Toast.LENGTH_LONG).show();
+//                        Toast.makeText(ChatinPostActivity.this, getResources().getString(R.string.server_error), Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -159,6 +227,7 @@ public class ChatinPostActivity extends AppCompatActivity implements View.OnClic
                                     public void run() {
                                         progressDialog.dismiss();
                                         tv_no_records.setVisibility(View.GONE);
+                                        ll_bottom.setVisibility(View.VISIBLE);
 
                                         adapter = new ChatOnPostAdatper(ChatinPostActivity.this, list, is_chat_byer);
                                         rv_recyclerviw.setLayoutManager(new LinearLayoutManager(ChatinPostActivity.this));

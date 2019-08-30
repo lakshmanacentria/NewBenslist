@@ -256,18 +256,17 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
                 .addFormDataPart("loginid", Account.accountData.get("id"))
                 .addFormDataPart("otherid", other_id)
                 .build();
-        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        JsonObject jsonpayload = new JsonObject();
-        jsonpayload.addProperty("loginid", Account.accountData.get("id"));
-        jsonpayload.addProperty("otherid", other_id);
-        Log.e(TAG, "callBlockuseruserApi: jsonpayload " + jsonpayload);
 
-
-        RequestBody body = RequestBody.create(JSON, String.valueOf(jsonpayload));
+//        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+//        JsonObject jsonpayload = new JsonObject();
+//        jsonpayload.addProperty("loginid", Account.accountData.get("id"));
+//        jsonpayload.addProperty("otherid", other_id);
+//        Log.e(TAG, "callBlockuseruserApi: jsonpayload " + jsonpayload);
+//        RequestBody body = RequestBody.create(JSON, String.valueOf(jsonpayload));
 
         Request request = new Request.Builder()
-                .url("https://benslist.com/chatMessageBlockUserApi.inc.php")
-                .post(body)
+                .url("https://benslist.com/chatUserBlockApi.inc.php")
+                .post(requestBody)
                 .build();
 
 //        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://benslist.com/chatMessageBlockUserApi.inc.php").newBuilder();
@@ -304,7 +303,8 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
                             public void run() {
                                 progressDialog.dismiss();
 //                                Toast.makeText(MarchentListActivity.this, "block admin", Toast.LENGTH_LONG).show();
-                                Utils.isAlertBox(MarchentListActivity.this, "Chat history delete", "");
+//                                Config.alertDailog(MarchentListActivity.this, "User blocked");
+                                Utils.isAlertBox(MarchentListActivity.this, "User blocked", "");
                             }
                         });
 //
