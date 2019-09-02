@@ -39,6 +39,7 @@ import com.acentria.benslist.adapters.VideoAdapter;
 import com.acentria.benslist.chatprocess.ChatinPostActivity;
 import com.acentria.benslist.chatprocess.MarchentListActivity;
 import com.acentria.benslist.controllers.Favorites;
+import com.bumptech.glide.Glide;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -695,6 +696,15 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         TextView tv_make_an_offer = (TextView) details.findViewById(R.id.tv_make_an_offer);
         ImageView icon_call = (ImageView) details.findViewById(R.id.icon_call);
         LinearLayout ll_chat = (LinearLayout) details.findViewById(R.id.ll_chat);
+
+        LinearLayout ll_since_date = (LinearLayout) details.findViewById(R.id.ll_since_date);
+        TextView tv_live_status = (TextView) details.findViewById(R.id.tv_live_status);
+        ImageView iv_livestatus = details.findViewById(R.id.iv_livestatus);
+        TextView tv_lastonline = details.findViewById(R.id.tv_lastonline);
+        TextView tv_sincebyer = details.findViewById(R.id.tv_sincebyer);
+        TextView tv_emailname = details.findViewById(R.id.tv_emailname);
+        TextView tv_username = details.findViewById(R.id.tv_username);
+
         if (Utils.getSPConfig("accountUsername", "") != "" && Utils.getSPConfig("accountUsername", "") != null) {
 
             if (Lang.get("android_title_activity_listing_details").equalsIgnoreCase("Ad Details")) {
@@ -704,11 +714,37 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                 ll_chat.setVisibility(View.VISIBLE);
                 if (sellerData.get("ID").equalsIgnoreCase(Account.accountData.get("id"))) {
                     tv_chat.setVisibility(View.INVISIBLE);
+
                 }
 
                 Log.e(TAG, "drawListingDetails:chat visible bcz you are comes from > " + Lang.get("android_title_activity_listing_details"));
             }
         }
+
+
+        /*new implements Aug2019*/
+        if (!sellerData.get("onlinestatus").equalsIgnoreCase("0")) {
+            tv_live_status.setText("Live");
+            tv_live_status.setTextColor(getResources().getColor(R.color.about_app_link_color));
+            iv_livestatus.setImageResource(R.color.about_app_link_color);
+
+
+        } else {
+            iv_livestatus.setImageResource(R.color.red_bg);
+            tv_live_status.setTextColor(getResources().getColor((R.color.red_bg)));
+            tv_live_status.setText("Offline");
+            if (sellerData.get("ID").equalsIgnoreCase(Account.accountData.get("id"))) {
+                tv_live_status.setText("Live");
+                tv_live_status.setTextColor(getResources().getColor(R.color.about_app_link_color));
+                iv_livestatus.setImageResource(R.color.about_app_link_color);
+                Log.e(TAG, "drawListingDetails:  live always get 0 from backend show we have handle on login user condition  " + sellerData.get("onlinestatus"));
+            }
+        }
+        tv_lastonline.setText("Last Online: " + sellerData.get("last_online"));
+        tv_sincebyer.setText(sellerData.get("sincedate") + "");
+        tv_username.setText(sellerData.get("name") + "");
+        tv_emailname.setText(sellerData.get("email") + "");
+
 
         icon_call.setOnClickListener(new View.OnClickListener() {
             @Override

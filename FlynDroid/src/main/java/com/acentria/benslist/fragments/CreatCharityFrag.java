@@ -58,10 +58,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.msebera.android.httpclient.entity.mime.content.StringBody;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -362,7 +364,6 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
 
                     Log.e(TAG, "select other " + "Nothing selected from Money Radio Group.");
                 }
-
 
                 break;
             case R.id.bank_radiogroup:
@@ -742,12 +743,14 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         else {
             if (Utils.isOnline(getActivity())) {
                 callCreateCharityApi(/*create_payload()*/);
+
             } else {
                 Toast.makeText(getActivity(), getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
             }
         }
 
     }
+
 
     private MultipartBody.Builder create_payload() {
 
@@ -997,7 +1000,6 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
 //            qauntity = "0";
 //        }
 
-
         OkHttpClient okHttpClientforCharity = new OkHttpClient();
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
@@ -1031,53 +1033,79 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
         }
 
 
-        JsonObject prodcutjson = new JsonObject();
-        JsonObject qauntityjson = new JsonObject();
-        JsonArray arrayproduct = new JsonArray();
-        JsonArray arrayqauntity = new JsonArray();
-        JsonObject jsonObject = new JsonObject();
+
         if (productAddList.size() > 0) {
-            for (int i = 0; i < productAddList.size(); i++) {
-//                if (productAddList.get(0).getProdcutname().equalsIgnoreCase("")) {
-//                    builder.addFormDataPart("[product]", productAddList.get(i).getProdcutname());
-//                    builder.addFormDataPart("[quantity]", productAddList.get(i).getProdcut_qauntity());
-//                    Log.e(TAG, "callCreateCharityApi 0 pos : product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
-//                }
-                if (!productAddList.get(i).getProdcutname().equalsIgnoreCase("") && !productAddList.get(i).getProdcut_qauntity().equalsIgnoreCase("")) {
+//            for (int i = 0; i < productAddList.size(); i++) {
+//                if (!productAddList.get(i).getProdcutname().equalsIgnoreCase("") && !productAddList.get(i).getProdcut_qauntity().equalsIgnoreCase("")) {
 //                    arrayproduct.add(productAddList.get(i).getProdcutname());
 //                    arrayqauntity.add(productAddList.get(i).getProdcut_qauntity());
-//                    prodcutjson.addProperty(i + "", productAddList.get(i).getProdcutname());
-//                    qauntityjson.addProperty(i + "",  productAddList.get(i).getProdcutname());
-                    arrayproduct.add(productAddList.get(i).getProdcutname());
-                    arrayqauntity.add(productAddList.get(i).getProdcut_qauntity());
-                    Log.e(TAG, "callCreateCharityApi: not blnak value product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
-                }
-//                arrayproduct.add(prodcutjson);
-//                arrayqauntity.add(qauntityjson);
-                JSONObject productObj = new JSONObject();
-                JSONObject qauntityObj = new JSONObject();
-                try {
-                    productObj.put("product", arrayproduct);
-                    qauntityObj.put("quantity", arrayqauntity);
-                    Log.e(TAG, "callCreateCharityApi: productObj " + productObj);
-                    Log.e(TAG, "callCreateCharityApi: qauntityObj " + qauntityObj);
+//                    Log.e(TAG, "callCreateCharityApi: not blnak value product" + productAddList.get(i).getProdcutname() + "\nqauntity " + productAddList.get(i).getProdcut_qauntity());
+//                }
+//                JSONObject productObj = new JSONObject();
+//                JSONObject qauntityObj = new JSONObject();
+//                try {
+//                    productObj.put("[product]", arrayproduct);
+//                    qauntityObj.put("[quantity]", arrayqauntity);
+//                    Log.e(TAG, "callCreateCharityApi: productObj " + productObj);
+//                    Log.e(TAG, "callCreateCharityApi: qauntityObj " + qauntityObj);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                builder.addFormDataPart("product", String.valueOf(productObj));
+//                builder.addFormDataPart("quantity", String.valueOf(qauntityObj));
+//            }
+            /*.......................new Approch........................*/
+            try {
+                // creating json array
+                JSONArray prod_array = new JSONArray();
+                JSONArray qaunt_array = new JSONArray();
+                prod_array.put("product");
+                qaunt_array.put("quantity");
+                JSONObject jsonObj_pro = new JSONObject();
+                JSONObject jsonObj_qunt = new JSONObject();
+                for (int j = 0; j < productAddList.size(); j++) {
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    if (!productAddList.get(j).getProdcutname().equalsIgnoreCase("") && !productAddList.get(j).getProdcut_qauntity().equalsIgnoreCase("")) {
+                        // send the array with payload
+
+//                        jsonObj_pro.put(j + "", productAddList.get(j).getProdcutname());
+//                        jsonObj_qunt.put(j + "", productAddList.get(j).getProdcut_qauntity());
+//                        Log.e(TAG, "callCreateCharityApi: " + jsonObj_pro);
+//                        Log.e(TAG, "callCreateCharityApi: " + jsonObj_qunt);
+                        builder.addFormDataPart("product[" + j + "]", productAddList.get(j).getProdcutname());
+                        builder.addFormDataPart("quantity[" + j + "]", productAddList.get(j).getProdcut_qauntity());
+                    }
+                    prod_array.put(0, jsonObj_pro);
+                    qaunt_array.put(0, jsonObj_qunt);
+                    Log.e(TAG, "callCreateCharityApi: inner loop prod " + prod_array);
+                    Log.e(TAG, "callCreateCharityApi: innner loop qaunt" + qaunt_array);
+
                 }
-                builder.addFormDataPart("[product]", String.valueOf(productObj));
-                builder.addFormDataPart("[quantity]", String.valueOf(qauntityObj));
+//                Log.e(TAG, "callCreateCharityApi: outer loop pro " + prod_array);
+//                Log.e(TAG, "callCreateCharityApi: outerloogp qunt" + qaunt_array);
+
+
+//                builder.addFormDataPart("product[]", prod_array.toString().replace("\"", ""));
+//                builder.addFormDataPart("quantity[]", qaunt_array.toString().replace("\"", ""));
+//                Log.e(TAG, "callCreateCharityApi: replace product " + prod_array.toString().replace("\"", ""));
+//                Log.e(TAG, "callCreateCharityApi: replace qauntity " + qaunt_array.toString().replace("\"", ""));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+            /*.........................end..............*/
+
+
         }
 
 
         RequestBody requestBody = builder.build();
 
-        Log.e(TAG, "MultipartBody Create =>" + "account_id" + user_login_id + "\ntitle" + title + "\nname_of_organization " + name_of_organization + "\ndescription" + description
-                + "\nc_type" + c_type_str + "\namount " + amount + "\ncurrency_type " + currency_type + "\nremaining_amount " + remaining_amount + "\nemail " + email + "\ntel" + tel + "\nproduct" + productAddList.get(0).getProdcutname() +
-                "\nquantity " + productAddList.get(0).getProdcut_qauntity() + "\ncountry " + country_str + "\nstate " + state_str + "\ncity " + city_str + "\naddress " + address + "\npayment_method " + payment_method +
-                "\npaypal_email " + paypal_id + "\nbank_name " + bank_name + "\naccount_no " + account_no + "\nifsc_code " + ifsc_code + "\nadditional_info " + additional_info +
-                "\navtar " + file.getName() + "soucesname " + profilenamepath);
+//        Log.e(TAG, "MultipartBody Create =>" + "account_id" + user_login_id + "\ntitle" + title + "\nname_of_organization " + name_of_organization + "\ndescription" + description
+//                + "\nc_type" + c_type_str + "\namount " + amount + "\ncurrency_type " + currency_type + "\nremaining_amount " + remaining_amount + "\nemail " + email + "\ntel" + tel + "\nproduct" + productAddList.get(0).getProdcutname() +
+//                "\nquantity " + productAddList.get(0).getProdcut_qauntity() + "\ncountry " + country_str + "\nstate " + state_str + "\ncity " + city_str + "\naddress " + address + "\npayment_method " + payment_method +
+//                "\npaypal_email " + paypal_id + "\nbank_name " + bank_name + "\naccount_no " + account_no + "\nifsc_code " + ifsc_code + "\nadditional_info " + additional_info +
+//                "\navtar " + file.getName() + "soucesname " + profilenamepath);
 
         Request requestcharity = new Request.Builder()
                 /* .url(BASE_URL + route)*/
@@ -1125,8 +1153,6 @@ public class CreatCharityFrag extends Fragment implements RadioGroup.OnCheckedCh
                 } else {
                     Log.e(TAG, "Multipat Unsuccess respone");
                 }
-
-
             }
         });
 

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+
+    <TextView
+        android:id="@+id/tv_offer_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_margin="@dimen/fab_margin"
+
+        android:paddingTop="@dimen/fab_margin"
+        android:paddingBottom="@dimen/fab_margin"
+        android:text="@string/report_title"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <RadioGroup
+        android:id="@+id/rd_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_constraintTop_toBottomOf="@+id/tv_offer_price">
+
+        <RadioButton
+            android:id="@+id/rd_Inappropriate_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Inappropriate content" />
+
+        <RadioButton
+            android:id="@+id/rd_bullying"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bullying" />
+
+        <RadioButton
+            android:id="@+id/rd_racism"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="racism" />
+
+
+    </RadioGroup>
+
+
+    <Button
+        android:id="@+id/btn_report"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/about_app_link_color"
+        android:text="report"
+        android:textAllCaps="true"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+</android.support.constraint.ConstraintLayout>

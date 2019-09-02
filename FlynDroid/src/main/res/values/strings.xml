@@ -92,5 +92,6 @@
     <string name="remaining_goods">Remaining Goods</string>
     <string name="firstname_filed_required">fist name field is required.</string>
     <string name="lastname_filed_required">last name field is required.</string>
+    <string name="report_title">Select a label or click \"Report\" to send report</string>
 
 </resources>

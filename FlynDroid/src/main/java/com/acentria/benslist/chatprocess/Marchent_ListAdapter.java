@@ -79,15 +79,26 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
                 });
 //                }
 
-            holder.tv_delete.setImageResource(R.mipmap.delete_chat_ic);
+
+                holder.tv_delete.setImageResource(R.mipmap.delete_chat_ic);
                 holder.tv_delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.e(TAG, "onClick: "+"delete chat" );
+                        Log.e(TAG, "onClick: " + "delete chat");
                         monClickPosi.OnPosiClieck(position, "delete_chat", mlist_chatpost.get(position).getMerchantId(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
 
                     }
                 });
+                holder.iv_report.setVisibility(View.VISIBLE);
+                holder.iv_report.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.e(TAG, "onClick: " + "report chat");
+                        monClickPosi.OnPosiClieck(position, "report_chat", mlist_chatpost.get(position).getMerchantId(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
+
+                    }
+                });
+
             } else {
                 holder.tvmarchent_name.setText(mlist.get(position).getUsername());
                 Log.e(TAG, "marchentname" + mlist.get(position).getUsername());
@@ -105,7 +116,7 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
                     public void onClick(View v) {
                         monClickPosi.OnPosiClieck(position, "user_loginid", mlist.get(position).getId(), "blockAdmin", mlist.get(position).getUsername());
 
-                        Log.e(TAG, "onClick: "+"block admin" );
+                        Log.e(TAG, "onClick: " + "block admin");
                     }
                 });
             }
@@ -129,7 +140,7 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private ImageView img_profile, tv_delete;
+        private ImageView img_profile, tv_delete, iv_report;
         private TextView tvmarchent_name, tv_description;
         private ConstraintLayout constrain_parent;
 
@@ -140,6 +151,7 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
             tv_description = itemView.findViewById(R.id.tv_description);
             constrain_parent = itemView.findViewById(R.id.constrain_parent);
             tv_delete = itemView.findViewById(R.id.tv_delete);
+            iv_report = itemView.findViewById(R.id.iv_report);
 
         }
     }

@@ -12,12 +12,15 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.acentria.benslist.Account;
+import com.acentria.benslist.ListingDetailsActivity;
 import com.acentria.benslist.R;
 import com.acentria.benslist.Utils;
 import com.acentria.benslist.response.ChatPostResponse;
@@ -234,6 +237,14 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
                 } else {
                     Toast.makeText(ChatPostListActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
                 }
+            } else if (user_login_id.equalsIgnoreCase("report_chat")) {
+                if (Utils.isOnline(this)) {
+                    startActivity(new Intent(ChatPostListActivity.this, ChatHistoryReportActivity.class)
+                            .putExtra("marchentid", marchentid)
+                            .putExtra("post_id", post_id));
+                } else {
+                    Toast.makeText(ChatPostListActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
+                }
             } else {
                 startActivity(new Intent(this, ChatHistoryActivity.class).putExtra("user_id", user_login_id)
                         .putExtra("merchant_id", marchentid).putExtra("post_id", post_id).putExtra("username", username)
@@ -242,6 +253,7 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
         }
         /*Only come if becone this actvity send ischatpost boolean true than we need only call true condition*/
     }
+
 
     private void call_delete_chathistory(String marchent_id, String post_id) {
         OkHttpClient okHttpClient = new OkHttpClient();
