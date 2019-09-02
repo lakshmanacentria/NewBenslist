@@ -409,6 +409,10 @@ public final class Config {
                 for (int b = 0; b < nodeReport.getLength(); b++) {
                     Element reportNode = (Element) nodeReport.item(b);
                     HashMap<String, String> fieldHash = new HashMap<String, String>();
+
+//                    if(reportNode.getAttribute("key").equalsIgnoreCase("")){
+//
+//					}
                     fieldHash.put("key", reportNode.getAttribute("key"));
 					fieldHash.put("name", reportNode.getTextContent());
 					reportBroken.add( fieldHash);

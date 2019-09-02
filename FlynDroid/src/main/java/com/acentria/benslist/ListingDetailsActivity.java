@@ -727,12 +727,15 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
             tv_live_status.setText("Live");
             tv_live_status.setTextColor(getResources().getColor(R.color.about_app_link_color));
             iv_livestatus.setImageResource(R.color.about_app_link_color);
+            Log.e(TAG, "drawListingDetails: Live Status=> "+sellerData.get("onlinestatus") );
 
 
         } else {
             iv_livestatus.setImageResource(R.color.red_bg);
             tv_live_status.setTextColor(getResources().getColor((R.color.red_bg)));
             tv_live_status.setText("Offline");
+            Log.e(TAG, "drawListingDetails: Live Status=> "+sellerData.get("onlinestatus") );
+
             if (sellerData.get("ID").equalsIgnoreCase(Account.accountData.get("id"))) {
                 tv_live_status.setText("Live");
                 tv_live_status.setTextColor(getResources().getColor(R.color.about_app_link_color));
