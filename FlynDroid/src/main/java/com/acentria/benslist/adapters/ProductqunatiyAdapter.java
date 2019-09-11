@@ -2,6 +2,8 @@ package com.acentria.benslist.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +38,7 @@ public class ProductqunatiyAdapter extends RecyclerView.Adapter<ProductqunatiyAd
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         try {
             if (mlist != null) {
                 if (mlist.size() > 0) {
@@ -47,6 +49,25 @@ public class ProductqunatiyAdapter extends RecyclerView.Adapter<ProductqunatiyAd
                     }
                     mlist.get(position).setManualQuanty(holder.et_qauntity.getText().toString());
                     Log.e(TAG, "manual quantity" + mlist.get(position).getManualQuanty());
+                    holder.et_qauntity.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                            Log.e(TAG, " beforeTextChanged: et_product " + charSequence.toString());
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                            Log.e(TAG, "onTextChanged: et_product " + charSequence.toString());
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+                            Log.e(TAG, "afterTextChanged: et_product " + editable.toString());
+                            mlist.get(position).setManualQuanty(editable.toString());
+                        }
+                    });
+
                     monClickQuanity.onItemClick(position, holder.et_product.getText().toString(), holder.et_qauntity.getText().toString());
 
                 }

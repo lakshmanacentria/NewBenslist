@@ -101,6 +101,7 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
     private LinearLayout ll_paypall;
     private ProgressDialog progressDialog;
     private ProductqunatiyAdapter adatper;
+    List<DonateCharityResponse> list = new ArrayList<>();
 
     static String env_mode = Utils.getCacheConfig("android_paypal_sandbox").equals("1") ? PayPalConfiguration.ENVIRONMENT_SANDBOX : PayPalConfiguration.ENVIRONMENT_PRODUCTION;
 
@@ -529,7 +530,7 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
                         final JSONObject jsonObject = itemArray.getJSONObject(0);
                         Type type = new TypeToken<List<DonateCharityResponse>>() {
                         }.getType();
-                        final List<DonateCharityResponse> list = (new Gson()).fromJson(itemArray.toString(), type);
+                        list = (new Gson()).fromJson(itemArray.toString(), type);
                         charity_id = list.get(0).getId();
                         payer_email = list.get(0).getEmail();
                         residence_country = list.get(0).getCountry();
@@ -748,6 +749,38 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
 //        mqunatity = adatper.mlist.get(0).getManualQuanty();
 //        Log.e(TAG, "call_charitydonat_api: " + mqunatity);
 
+
+        for (int i = 0; i < list.size(); i++) {
+            final String fillQauntity = list.get(i).getManualQuanty();
+            final String totalQauntity = list.get(i).getQuantity();
+            if (fillQauntity.equalsIgnoreCase("")) {
+               runOnUiThread(new Runnable() {
+                   @Override
+                   public void run() {
+                       Toast.makeText(CharityDonateActivity.this, "please fill qauntity" + totalQauntity, Toast.LENGTH_LONG);
+                       Log.e(TAG, "call_charitydonat_api: please fill qauntity=> " + fillQauntity);
+                   }
+               });
+
+                return;
+            }
+            double fillQaunt = Double.valueOf(fillQauntity);
+            double totalQaunt = Double.valueOf(totalQauntity);
+
+            Log.e(TAG, "call_charitydonat_api: list " + list.get(i));
+            Log.e(TAG, "call_charitydonat_api: Quantity=> " + list.get(i).getQuantity());
+            Log.e(TAG, "call_charitydonat_api: ManualQauntity=> " + list.get(i).getManualQuanty());
+            if (fillQaunt > totalQaunt) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(CharityDonateActivity.this, "Total  qauntity is " + totalQauntity, Toast.LENGTH_LONG);
+                        return;
+                    }
+                });
+            }
+        }
+
         OkHttpClient okHttpCharityDonate = new OkHttpClient();
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
@@ -778,6 +811,15 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
         String url = "";
 
         if (getIntent().getStringExtra("is_foodside") != null) {
+            if (list.get(0).getQuantity().equalsIgnoreCase("")) {
+                Toast.makeText(CharityDonateActivity.this, "Please enter qauntity", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (ref_no == null) {
+                Toast.makeText(CharityDonateActivity.this, "Ref number not found.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             url = "https://www.benslist.com/Api/food_donate.inc.php";
             builder.addFormDataPart("charity_id", charity_id)
                     .addFormDataPart("gender_type", mrs_str)
@@ -789,8 +831,23 @@ public class CharityDonateActivity extends AppCompatActivity implements Productq
                     .addFormDataPart("state", state_str)
                     .addFormDataPart("city", city_str)
                     .addFormDataPart("keepme", keepme_str)
-                    .addFormDataPart("product", mproduct)
-                    .addFormDataPart("quantity", "12");
+                    .addFormDataPart("charity_id", ref_no);
+//                    .addFormDataPart("[product]", mproduct)
+//                    .addFormDataPart("[quantity]", "12");
+
+            if (list.size() > 0) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getManualQuanty() != null) {
+                        if (!list.get(0).getManualQuanty().equalsIgnoreCase("")) {
+                            builder.addFormDataPart("product[" + i + "]", list.get(i).getProduct());
+                            builder.addFormDataPart("quantity[" + i + "]", list.get(i).getManualQuanty());
+                        }
+                    }
+
+                }
+            }
+
+
         } else {
 
             url = "https://www.benslist.com/Api/charity_donate.inc.php";

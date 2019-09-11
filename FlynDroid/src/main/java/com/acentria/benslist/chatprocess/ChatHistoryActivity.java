@@ -83,7 +83,10 @@ public class ChatHistoryActivity extends AppCompatActivity implements View.OnCli
     private void socket_init() {
         try {
             /*http://192.168.1.117:1234/*/
-            socket = IO.socket("http://192.168.1.117:1234");  /*http://192.168.1.3:3000*/
+            /*live url http://benslist.com:8080/    Local url http://192.168.1.117:1234*/
+//            socket = IO.socket("http://192.168.1.117:1234");  /*http://192.168.1.3:3000*/
+            socket = IO.socket("http://benslist.com:8080");   /*live url http://benslist.com:8080*/
+
             socket.on(Socket.EVENT_CONNECT, onConnect);
             socket.on(Socket.EVENT_DISCONNECT, onDisconnect);
             socket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
@@ -94,7 +97,7 @@ public class ChatHistoryActivity extends AppCompatActivity implements View.OnCli
             socket.on("login", onLogin);
             socket.connect();
 
-            socket.emit("join", user_id/*"8"*/);
+            socket.emit("join", user_id);
         } catch (URISyntaxException e) {
             e.printStackTrace();
 
@@ -544,7 +547,7 @@ public class ChatHistoryActivity extends AppCompatActivity implements View.OnCli
                 jsonObject.put("message", messageType);
                 jsonObject.put("post_id", post_id);
                 jsonObject.put("message_time", message_time);
-                jsonObject.put("img_url",imgUrl);
+                jsonObject.put("img_url", imgUrl);
 
                 socket.emit("newMessage", jsonObject);
 

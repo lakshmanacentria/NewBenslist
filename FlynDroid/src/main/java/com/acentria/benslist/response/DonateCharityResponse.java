@@ -91,6 +91,8 @@ public class DonateCharityResponse {
     private String refNumber;
     private String manualQuanty;
 
+
+
     public String getId() {
         return id;
     }

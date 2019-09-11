@@ -132,8 +132,7 @@ public class CharityDetailActivity extends AppCompatActivity implements View.OnC
 
         }
 
-
-
+        /*........not using..........*/
         /*colApsing toolbar*/
         appbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
@@ -153,6 +152,9 @@ public class CharityDetailActivity extends AppCompatActivity implements View.OnC
 //        collapsingToolbar.getStatusBarScrim().applyTheme(R.style.TextAppearance_AppCompat);
         collapsingToolbar.getScrimVisibleHeightTrigger();
         ViewCompat.setTransitionName(findViewById(R.id.appbar), EXTRA_IMAGE);
+        /*................*/
+
+
         /*progress dialog inilisize*/
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);

@@ -86,7 +86,12 @@ public class ChatinPostActivity extends AppCompatActivity implements View.OnClic
         progressDialog.setMessage("Loading...");
 
         if (Utils.isOnline(this)) {
-            checkuserblockORnot_callApi();
+//            checkuserblockORnot_callApi(); /*use*/
+            rv_recyclerviw.setVisibility(View.GONE);
+            tv_no_records.setVisibility(View.VISIBLE);
+            tv_no_records.setText("Under working");
+
+
 //            call_chat_historyApi();
         } else {
             rv_recyclerviw.setVisibility(View.GONE);
