@@ -149,7 +149,7 @@ public class CreateFoodFrag extends Fragment implements View.OnClickListener {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int position, long llong) {
             if (position > 0) {
-                Country country = (Country) spinner_selectcountry.getItemAtPosition(position);
+               final Country country = (Country) spinner_selectcountry.getItemAtPosition(position);
                 country_str = country.getCountryName();
                 if (Utils.isOnline(getActivity())) {
                     call_StateApi(country.getCountryName());
@@ -267,6 +267,7 @@ public class CreateFoodFrag extends Fragment implements View.OnClickListener {
 
     /*call state Api and set data on  state spinner*/
     private void call_StateApi(final String countryName) {
+        Log.e(TAG, "call_StateApi: "+countryName );
 
 
         OkHttpClient okHttpClient = new OkHttpClient();
@@ -309,11 +310,12 @@ public class CreateFoodFrag extends Fragment implements View.OnClickListener {
 
                             }
 
+                            state_str = states.get(0).getStateName();
                             State statepojo = new State(); /*add static value at 0 postion or first position at runtime*/
                             statepojo.setStateName("Please Select State");
                             states.add(0, statepojo); /*add static value pass on adpter */
 
-                            state_str = states.get(0).getStateName();
+//                            state_str = states.get(0).getStateName();
                             Log.e(TAG, "FilerStateArray Befor pass in spiner adapter " + states.get(0).getCountryName() + "\nState name" + state_str);
                             stateArrayAdapter = new ArrayAdapter<State>(getActivity(), R.layout.simple_spinner_dropdown_item, states);
                             getActivity().runOnUiThread(new Runnable() {
@@ -322,7 +324,7 @@ public class CreateFoodFrag extends Fragment implements View.OnClickListener {
                                     progressDialog.dismiss();
                                     spinner_select_state.setAdapter(stateArrayAdapter);
                                     /*call state api for for first set spinner state wise set city befor selected onItemsselect lisners*/
-                                    call_cityApi(states.get(0).getStateName(), states.get(0).getCountryName());
+//                                    call_cityApi(states.get(0).getStateName(), states.get(0).getCountryName());
 
                                 }
                             });

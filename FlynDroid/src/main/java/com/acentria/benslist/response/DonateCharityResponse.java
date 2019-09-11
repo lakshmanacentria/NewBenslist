@@ -27,9 +27,11 @@ public class DonateCharityResponse {
     @SerializedName("c_type")
     @Expose
     private String cType;
+
     @SerializedName("amount")
     @Expose
     private String amount;
+
     @SerializedName("remaining_amount")
     @Expose
     private String remainingAmount;

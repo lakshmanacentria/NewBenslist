@@ -23,6 +23,7 @@ import com.acentria.benslist.Account;
 import com.acentria.benslist.ListingDetailsActivity;
 import com.acentria.benslist.R;
 import com.acentria.benslist.Utils;
+import com.acentria.benslist.controllers.AccountArea;
 import com.acentria.benslist.response.ChatPostResponse;
 import com.acentria.benslist.response.MarchentListResponse;
 import com.google.gson.Gson;
@@ -54,7 +55,7 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
 
 
     private ProgressDialog progressDialog;
-    private String TAG = MarchentListActivity.class.getName();
+    private String TAG = ChatPostListActivity.class.getName();
     private List<ChatPostResponse> list;
     private String marchent_id = "", username = "", account_name = "";
     private boolean is_chatpost = true;
@@ -76,6 +77,7 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
         tv_no_records = findViewById(R.id.tv_no_records);
 
         if (getIntent().getExtras() != null) {
+            /*if condition not working because we have only one one Seller typer user  *laksh* */
             if (!getIntent().getStringExtra("account_name").equalsIgnoreCase("Seller")) {
                 marchent_id = getIntent().getStringExtra("merchant_id");
                 username = getIntent().getStringExtra("user_name");
@@ -111,38 +113,40 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
     }
 
     private void call_chatpostApi() {
-        final String acUser_id;
-        final String acMerchent_id;
-        String MERCHENT_ID = "merchant_id", USER_ID = "user_id";
+//        final String acUser_id;
+//        final String acMerchent_id;
+//        String MERCHENT_ID = "merchant_id", USER_ID = "user_id";
         if (!Account.loggedIn) {
             return;
-        } else {
-            if (!account_name.equalsIgnoreCase("Seller")) {
-                MERCHENT_ID = "merchant_id";
-                USER_ID = "user_id";
-                acUser_id = Account.accountData.get("id");
-                acMerchent_id = marchent_id;
-                Log.e(TAG, "from Dealer side" + "account_id=> " + acUser_id + "\tMarchent id " + acMerchent_id);
-            } else {
-//                MERCHENT_ID = "merchant_id";
-//                USER_ID = "user_id";
-                acUser_id = marchent_id;
-                acMerchent_id = Account.accountData.get("id");
-                Log.e(TAG, "from Seller side" + "account_id=> " + acUser_id + "\tMarchent id " + acMerchent_id);
-            }
-
         }
+        Log.e(TAG, "call_chatpostApi: Login userid" + Account.accountData.get("id") + "reciever_userid " + marchent_id);
+//        else {
+////            if (!account_name.equalsIgnoreCase("Seller")) {
+////                MERCHENT_ID = "merchant_id";
+////                USER_ID = "user_id";
+////                acUser_id = Account.accountData.get("id");
+////                acMerchent_id = marchent_id;
+////                Log.e(TAG, "from Dealer side" + "account_id=> " + acUser_id + "\tMarchent id " + acMerchent_id);
+////            } else {
+//////                MERCHENT_ID = "merchant_id";
+////                USER_ID = "user_id";
+////                acUser_id = marchent_id;
+////                acMerchent_id = Account.accountData.get("id");
+////                Log.e(TAG, "from Seller side" + "account_id=> " + acUser_id + "\tMarchent id " + acMerchent_id);
+////            }
+//
+//        }
         OkHttpClient okHttpClient = new OkHttpClient();
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
 //                .addFormDataPart("user_id", Account.accountData.get("id"))
 //                .addFormDataPart("merchant_id", marchent_id)
-                .addFormDataPart(USER_ID, acUser_id)
-                .addFormDataPart(MERCHENT_ID, acMerchent_id)
+                .addFormDataPart("reciever_userid", marchent_id)
+                .addFormDataPart("userid", Account.accountData.get("id"))
                 .build();
 
         Request request = new Request.Builder()
-                .url("https://www.benslist.com/Api/Chat/chat_post_list.inc.php")
+                .url("https://www.benslist.com/Api/Chat/chat_posts_list.inc.php")
                 .post(requestBody)
                 .build();
         progressDialog.show();
@@ -176,6 +180,8 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
 
                             for (int i = 0; i < list.size(); i++) {
                                 list.get(i).setUserName(username);
+                                list.get(i).setReceiver_id(marchent_id);
+                                list.get(i).setUserlogin_id(Account.accountData.get("id"));
                                 Log.e(TAG, "onResponse: setpotion wise username posi " + i + "\t" + list.get(i).getUsername());
                             }
                             runOnUiThread(new Runnable() {
@@ -224,30 +230,30 @@ public class ChatPostListActivity extends AppCompatActivity implements Marchent_
     }
 
     @Override
-    public void OnPosiClieck(int pos, String user_login_id, String marchentid, String post_id, String username) {
+    public void OnPosiClieck(int pos, String user_login_id, String receiver_id, String post_id, String username) {
 
-        Log.e(TAG, "OnPosiClieck " + pos + "\tUserlogin id " + user_login_id + "\t marchent_id" + marchentid + "\tpostid" + post_id);
+        Log.e(TAG, "OnPosiClieck " + pos + "\tUserlogin id " + user_login_id + "\t marchent_id" + receiver_id + "\tpostid" + post_id);
         if (is_chatpost) {
             /*  got to next screnen*/
             Log.e(TAG, "got to next ChatHistoryActivity");
             if (user_login_id.equalsIgnoreCase("delete_chat")) {
 //                Toast.makeText(ChatPostListActivity.this, "delete chat", Toast.LENGTH_LONG).show();
-                if (Utils.isOnline(this)) {
-                    call_delete_chathistory(marchentid, post_id);
+                if (Utils.isOnline(ChatPostListActivity.this)) {
+                    call_delete_chathistory(receiver_id, post_id);
                 } else {
                     Toast.makeText(ChatPostListActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
                 }
             } else if (user_login_id.equalsIgnoreCase("report_chat")) {
-                if (Utils.isOnline(this)) {
+                if (Utils.isOnline(ChatPostListActivity.this)) {
                     startActivity(new Intent(ChatPostListActivity.this, ChatHistoryReportActivity.class)
-                            .putExtra("marchentid", marchentid)
+                            .putExtra("marchentid", receiver_id)
                             .putExtra("post_id", post_id));
                 } else {
                     Toast.makeText(ChatPostListActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
                 }
             } else {
                 startActivity(new Intent(this, ChatHistoryActivity.class).putExtra("user_id", user_login_id)
-                        .putExtra("merchant_id", marchentid).putExtra("post_id", post_id).putExtra("username", username)
+                        .putExtra("merchant_id", receiver_id).putExtra("post_id", post_id).putExtra("username", username)
                         .putExtra("account_name", account_name));
             }
         }

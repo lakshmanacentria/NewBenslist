@@ -74,7 +74,7 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setMessage("Loading...");
 
-        if (Utils.isOnline(this)) {
+        if (Utils.isOnline(MarchentListActivity.this)) {
             call_marchrentlistApi();
         } else {
             tv_no_records.setVisibility(View.VISIBLE);
@@ -88,37 +88,39 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
 
     private void call_marchrentlistApi() {
         final String account_id;
-        String acount_type, url;
+        String account_type, url;
         if (!Account.loggedIn) {
 
             return;
         } else {
             account_id = Account.accountData.get("id");
             accountname = Account.accountData.get("type_name");
-            Log.e(TAG, "account_id=> " + Account.accountData.get("id"));
+            account_type = "sender_id";
+            Log.e(TAG, "account_id=> " + account_id);
             Log.e(TAG, "accounttype: " + accountname);
+            url = "https://www.benslist.com/Api/Chat/chat_users_list.inc.php";
 
-            if (accountname.equalsIgnoreCase("Seller")) {
-                acount_type = "merchant_id";
-                url = "https://www.benslist.com/Api/Chat/chat_user_list.inc.php";
-//                is_chatpost = false;
-
-                Log.e(TAG, "type " + acount_type + "\taccount_id" + account_id + "\nurl " + url);
-            } else {
-                acount_type = "user_id";
-                url = "https://www.benslist.com/Api/Chat/chat_merchant_list.inc.php";
-                Log.e(TAG, "type " + acount_type + "account_id" + account_id + "\nurl " + url);
-//                is_chatpost = true;
-                Log.e(TAG, "type " + acount_type + "\taccount_id" + account_id + "\nurl " + url);
-
-
-            }
+//            if (accountname.equalsIgnoreCase("Seller")) {
+//                acount_type = "merchant_id";
+//                url = "https://www.benslist.com/Api/Chat/chat_user_list.inc.php";
+////                is_chatpost = false;
+//
+//                Log.e(TAG, "type " + acount_type + "\taccount_id" + account_id + "\nurl " + url);
+//            } else {
+//                acount_type = "user_id";
+//                url = "https://www.benslist.com/Api/Chat/chat_merchant_list.inc.php";
+//                Log.e(TAG, "type " + acount_type + "account_id" + account_id + "\nurl " + url);
+////                is_chatpost = true;
+//                Log.e(TAG, "type " + acount_type + "\taccount_id" + account_id + "\nurl " + url);
+//
+//
+//            }
         }
         OkHttpClient okHttpClient = new OkHttpClient();
 
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart(acount_type, account_id)
+                .addFormDataPart(account_type, account_id)
                 .build();
 
 
@@ -217,7 +219,7 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
     public void OnPosiClieck(int pos, String user_login_id, String marchentid, String post_id, String username) {
         Log.e(TAG, "OnPosiClieck " + pos + "\tUserlogin id " + user_login_id + "\t marchent_id" + marchentid + "\tpost_id " + post_id + "\tusername" + username);
         if (!is_chatpost) {
-            if (!accountname.equalsIgnoreCase("Seller")) {
+            if (accountname.equalsIgnoreCase("Seller")) {
                 /*byer side login*/
 
                 if (post_id.equalsIgnoreCase("blockAdmin")) {
@@ -228,16 +230,19 @@ public class MarchentListActivity extends AppCompatActivity implements Marchent_
                     } else {
                         Toast.makeText(MarchentListActivity.this, getResources().getString(R.string.network_connection_error), Toast.LENGTH_LONG).show();
                     }
+                    Log.e(TAG, "OnPosiClieck: post_id 1 " + post_id);
+
                 } else {
                     startActivity(new Intent(this, ChatPostListActivity.class).putExtra("merchant_id", marchentid).putExtra("user_name", username)
                             .putExtra("account_name", accountname));
+                    Log.e(TAG, "OnPosiClieck: post_id 2  " + post_id);
 
                 }
 
 
             } else {
                 /*saller side login*/
-
+                Log.e(TAG, "OnPosiClieck: post_id 3 " + post_id);
                 startActivity(new Intent(this, ChatPostListActivity.class).putExtra("merchant_id", marchentid).putExtra("user_name", username)
                         .putExtra("account_name", accountname));
 

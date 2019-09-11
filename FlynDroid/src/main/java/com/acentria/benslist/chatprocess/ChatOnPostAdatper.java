@@ -61,7 +61,7 @@ public class ChatOnPostAdatper extends RecyclerView.Adapter<ChatOnPostAdatper.Vi
                     } else {
                         /*marchent message will be display left side dispay*/
                         holder.tv_date_left.setText(mlist.get(position).getDate());
-                        holder.tv_lname.setText(mlist.get(position).getMerchent_name());
+                        holder.tv_lname.setText(mlist.get(position).getUser_name());
                         holder.tv_message_left.setText(mlist.get(position).getMerchantMessage());
                         /*image null display*/
                         holder.const_left.setVisibility(View.VISIBLE);
@@ -82,7 +82,7 @@ public class ChatOnPostAdatper extends RecyclerView.Adapter<ChatOnPostAdatper.Vi
                     } else {
 
                         holder.tv_date_left.setText(mlist.get(position).getDate());
-                        holder.tv_lname.setText(mlist.get(position).getMerchent_name());
+                        holder.tv_lname.setText(mlist.get(position).getUser_name());
                         holder.tv_message_left.setText(mlist.get(position).getUserMessage());
 //                        Utils.imageLoaderDisc.displayImage(Account.accountData.get("photo"), holder.imageview_left, Utils.imageLoaderOptionsDisc);
                         holder.const_left.setVisibility(View.VISIBLE);

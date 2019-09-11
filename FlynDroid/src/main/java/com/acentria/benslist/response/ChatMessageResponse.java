@@ -21,7 +21,21 @@ public class ChatMessageResponse {
     @Expose
     private String date;
 
-    private String merchent_name;
+    private String username;
+    private String message;
+    private boolean IsMine = false;
+    private long message_time;
+    private String img_url;
+
+
+
+
+
+//    public ChatMessageResponse(String username, String message, boolean IsMine) {
+//        this.username=username;
+//        this.message = message;
+//        this.IsMine = IsMine;
+//    }
 
     public String getUserId() {
         return userId;
@@ -64,11 +78,45 @@ public class ChatMessageResponse {
     }
 
 
-    public void setMerchentName(String merchent_name) {
-        this.merchent_name = merchent_name;
+    public void setUserName(String username) {
+        this.username = username;
     }
 
-    public String getMerchent_name() {
-        return merchent_name;
+    public String getUser_name() {
+        return username;
+    }
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean getIsMine() {
+        return IsMine;
+    }
+
+    public void setMine(boolean mine) {
+        IsMine = mine;
+    }
+
+    public long getMessage_time() {
+        return message_time;
+    }
+
+    public void setMessage_time(long message_time) {
+        this.message_time = message_time;
+    }
+
+
+    public String getImg_url() {
+        return img_url;
+    }
+
+    public void setImg_url(String img_url) {
+        this.img_url = img_url;
     }
 }

@@ -35,7 +35,7 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
         this.mlist = list;
         this.monClickPosi = onClickPosi;
         this.mischatpost = ischatpost;
-        Log.e(TAG, "Marchent List ischatpost=> " + mischatpost);
+        Log.e(TAG, "user List ischatpost=> " + mischatpost);
     }
 
     public Marchent_ListAdapter(ChatPostListActivity context, OnClickPosi onClickPosi, List<ChatPostResponse> list, boolean ischatpost) {
@@ -43,7 +43,7 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
         this.mlist_chatpost = list;
         this.monClickPosi = onClickPosi;
         this.mischatpost = ischatpost;
-        Log.e(TAG, "Chat Post List ischatpost=> " + mischatpost);
+        Log.e(TAG, "Chat Post List ischatpost=> true " + mischatpost);
     }
 
 
@@ -66,6 +66,7 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
                 Log.e(TAG, "marchentname" + mlist_chatpost.get(position).getTitle());
                 /*https://www.benslist.com/files/05-2019/ad182/thumb_15567757831380865109.jpeg*/
                 linke_url = "https://www.benslist.com/files/" + mlist_chatpost.get(position).getMainPhoto();
+                Log.e(TAG, "onBindViewHolder: mischatpost true  "+mischatpost );
                 Log.e(TAG, "url" + linke_url);
 
                 Glide.with(mcontext).load(linke_url).placeholder(R.mipmap.seller_no_photo).diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(holder.img_profile);
@@ -74,7 +75,8 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
                     @Override
                     public void onClick(View v) {
 
-                        monClickPosi.OnPosiClieck(position, mlist_chatpost.get(position).getUserId(), mlist_chatpost.get(position).getMerchantId(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
+                        monClickPosi.OnPosiClieck(position, mlist_chatpost.get(position).getUserlogin_id(), mlist_chatpost.get(position).getReceiver_id(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
+
                     }
                 });
 //                }
@@ -85,7 +87,7 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
                     @Override
                     public void onClick(View v) {
                         Log.e(TAG, "onClick: " + "delete chat");
-                        monClickPosi.OnPosiClieck(position, "delete_chat", mlist_chatpost.get(position).getMerchantId(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
+                        monClickPosi.OnPosiClieck(position, "delete_chat", mlist_chatpost.get(position).getReceiver_id(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
 
                     }
                 });
@@ -94,15 +96,16 @@ public class Marchent_ListAdapter extends RecyclerView.Adapter<Marchent_ListAdap
                     @Override
                     public void onClick(View v) {
                         Log.e(TAG, "onClick: " + "report chat");
-                        monClickPosi.OnPosiClieck(position, "report_chat", mlist_chatpost.get(position).getMerchantId(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
+                        monClickPosi.OnPosiClieck(position, "report_chat", mlist_chatpost.get(position).getReceiver_id(), mlist_chatpost.get(position).getPostId(), mlist_chatpost.get(position).getUsername());
 
                     }
                 });
 
             } else {
-                holder.tvmarchent_name.setText(mlist.get(position).getUsername());
-                Log.e(TAG, "marchentname" + mlist.get(position).getUsername());
 
+                holder.tvmarchent_name.setText(mlist.get(position).getUsername());
+                Log.e(TAG, "marchentname " + mlist.get(position).getUsername());
+                Log.e(TAG, "onBindViewHolder: mischatpost false  "+mischatpost );
                 holder.constrain_parent.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

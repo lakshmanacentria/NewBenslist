@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             android:text="08 JANUARY, 201916:01 PM"
             android:textSize="12sp"
+            android:textStyle="italic"
             app:layout_constraintBottom_toTopOf="@id/constraintLayout"
             app:layout_constraintEnd_toEndOf="@id/constraintLayout" />
 
@@ -45,11 +46,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:paddingStart="10dp"
-
                 android:paddingEnd="10dp"
-                android:text="User name"
+                android:text="Sender name"
                 android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
 
@@ -59,11 +59,11 @@
                 android:layout_height="wrap_content"
                 android:maxWidth="240dp"
                 android:padding="10dp"
-
                 android:text="jkajdfjajfddfafgfhsfgsfgfdsgsgdsfgdsffgfgsdgsgsgsggsgsgsgsgsgsfgsfgsgsgsgsggsgg
                 gsgfgdsfgsgfdgdfgdsfgsfgsfksfadsfsadajfdjakdfasffd"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
+                android:textStyle="italic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_fname" />
 
@@ -100,6 +100,7 @@
             android:layout_height="wrap_content"
             android:text="09 JANUARY, 201906:01 AM"
             android:textSize="12sp"
+            android:textStyle="italic"
             app:layout_constraintStart_toStartOf="@+id/constraintLayoutt"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -124,7 +125,7 @@
                 android:layout_marginTop="16dp"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:text="Merchent name"
+                android:text="Receiver Name"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -140,6 +141,7 @@
                 gsgfgdsfgsgfdgdfgdsfgsfgsfksfadsfsadajfdjakdfasffd"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
+                android:textStyle="italic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_lname" />
 

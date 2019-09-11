@@ -75,6 +75,10 @@ dependencies {
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.2.+'
     /*paypal sdk*/
 //    implementation 'com.paypal.sdk:paypal-android-sdk:2.16.0'
+    /*soket for real time chat*/
+    compile('io.socket:socket.io-client:0.8.3') {
+        exclude group: 'org.json', module: 'json'
+    }
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     implementation 'com.synnapps:carouselview:0.1.5'
     compile 'com.google.maps.android:android-maps-utils:0.4.3'
