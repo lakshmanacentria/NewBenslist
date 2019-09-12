@@ -101,6 +101,7 @@ public class FeaturedItemAdapter extends BaseAdapter implements OnItemClickListe
         /* load image to list (AsyncTask) */
         if (!listing.get("photo").isEmpty()) {
             ImageAware imageAware = new ImageViewAware(holder.image, false);
+            Log.e(TAG, "getView: photo itmes "+listing.get("photo") );
             Utils.imageLoaderFeatured.displayImage(listing.get("photo"), imageAware, Utils.imageLoaderOptionsFeatured, new ImageLoadingListener() {
                 @Override
                 public void onLoadingStarted(String imageUri, View view) {

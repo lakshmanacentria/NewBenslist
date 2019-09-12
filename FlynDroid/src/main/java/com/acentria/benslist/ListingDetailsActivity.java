@@ -67,7 +67,9 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 import okhttp3.Call;
@@ -105,7 +107,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
     //	private static HashMap<String, String> locationData;
     private static ArrayList<HashMap<String, String>> sellerFields;
 
-    private static HashMap<String, String> emailhashmap = new HashMap<>();
+    private static HashMap<String, String> emailhashmap;
     private LinearLayout content;
 
     private AsyncHttpClient client;
@@ -150,6 +152,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         comments = new ArrayList<HashMap<String, String>>();
 
         sellerData = new HashMap<String, String>();
+        emailhashmap = new HashMap<String, String>();
 //        locationData = new HashMap<String, String>();
         sellerFields = new ArrayList<HashMap<String, String>>();
 
@@ -583,15 +586,23 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                 if (!json.isNull("seller")) {
                     sellerData = JSONParser.parseJson(json.getString("seller"));
                     object_email = new JSONObject(json.getString("seller"));
-                    String email = object_email.getString("email");
 
+                    if (object_email.has("email")) {
+                        String email = object_email.getString("email");
 
-                    emailhashmap.put("key", "email");
-                    emailhashmap.put("name", "email");
-                    emailhashmap.put("type", "text");
-                    emailhashmap.put("value", email);
+                        emailhashmap.put("key", "email");
+                        emailhashmap.put("name", "email");
+                        emailhashmap.put("type", "text");
+                        emailhashmap.put("value", email);
+                        Log.e(TAG, "prepareDetails: create emailhashmap" + emailhashmap);
 
-                    Log.e(TAG, "prepareDetails: create emailhashmap" + emailhashmap);
+                    }
+//                    String email = object_email.getString("email");
+//                    emailhashmap.put("key", "email");
+//                    emailhashmap.put("name", "email");
+//                    emailhashmap.put("type", "text");
+//                    emailhashmap.put("value", email);
+//                    Log.e(TAG, "prepareDetails: create emailhashmap" + emailhashmap);
 
 
                 }
@@ -602,18 +613,31 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                     sellerFields = JSONParser.parseJsontoArrayList(json.getString("seller_fields"));
                     Log.e(TAG, "prepareDetails: seller fields arrary" + json.getString("seller_fields"));
 
-                    if (sellerFields.size() > 2) {
-                        sellerFields.add(2, emailhashmap);
-                    } else if (sellerFields.size() == 2) {
-                        sellerFields.add(2, emailhashmap);
-                    } else if (sellerFields.size() == 1) {
-                        sellerFields.add(1, emailhashmap);
-                    } else {
-                        sellerFields.add(0, emailhashmap);
-                    }
+                    /*new Apporch for hide or show email*/
+                    if (emailhashmap.size() > 0) { /*new condition add*/
+                        if (sellerFields.size() > 2) {
+                            sellerFields.add(2, emailhashmap);
+                        } else if (sellerFields.size() == 2) {
+                            sellerFields.add(2, emailhashmap);
+                        } else if (sellerFields.size() == 1) {
+                            sellerFields.add(1, emailhashmap);
+                        } else {
+                            sellerFields.add(0, emailhashmap);
+                        }
 
+                        Log.e(TAG, "prepareDetails: " + emailhashmap.size());
+
+                    } /*new condition implement*/
+
+
+                    /*.................end at implement on 12.09.2019*/
+                    Log.e(TAG, "prepareDetails: size " + sellerFields.size());
                     for (int i = 0; i < sellerFields.size(); i++) {
                         Log.e(TAG, "prepareDetails: " + sellerFields.get(i));
+//                        for(Map<String,String> entry:sellerFields){
+//                            entry.get("email");
+//
+//                        }
                     }
 
                 }
@@ -733,11 +757,11 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         } else {
             iv_livestatus.setImageResource(R.color.red_bg);
             tv_live_status.setTextColor(getResources().getColor((R.color.red_bg)));
-            tv_live_status.setText("Offline");
+            tv_live_status.setText("User Status : Offline");
             Log.e(TAG, "drawListingDetails: Live Status=> " + sellerData.get("onlinestatus"));
 
             if (sellerData.get("ID").equalsIgnoreCase(Account.accountData.get("id"))) {
-                tv_live_status.setText("Live");
+                tv_live_status.setText("User Status : Live");
                 tv_live_status.setTextColor(getResources().getColor(R.color.about_app_link_color));
                 iv_livestatus.setImageResource(R.color.about_app_link_color);
                 Log.e(TAG, "drawListingDetails:  live always get 0 from backend show we have handle on login user condition  " + sellerData.get("onlinestatus"));
@@ -746,8 +770,15 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
         tv_lastonline.setText("Last Online: " + sellerData.get("last_online"));
         tv_sincebyer.setText(sellerData.get("sincedate") + "");
         tv_username.setText(sellerData.get("name") + "");
-        tv_emailname.setText(sellerData.get("email") + "");
 
+        /*........new implement on 12.09.2019*/
+        String email_is_exsist = sellerData.get("email");
+        if (email_is_exsist != null) { /*implement condion*/
+            tv_emailname.setVisibility(View.VISIBLE);
+            tv_emailname.setText(sellerData.get("email") + "");
+        }
+
+        /*........................close 12.09.2019*/
 
         icon_call.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1463,6 +1494,7 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
 
         if (sellerFields.size() > 0) {
             LinearLayout fieldsTable = (LinearLayout) sellerInfo.findViewById(R.id.fields_table);
+
             int index = 0;
 
             for (HashMap<String, String> entry : sellerFields) {
@@ -1484,8 +1516,12 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                 } else {
                     /* set field value */
                     fieldValue.setText(Html.fromHtml(entry.get("value")));
+                    Log.e(TAG, "drawListingSeller: Fileds value => " + entry.get("value"));
+                    Log.e(TAG, "drawListingSeller:Html " + Html.fromHtml(entry.get("value")));
                     fieldValue.setMovementMethod(LinkMovementMethod.getInstance());
                 }
+
+//                Log.e(TAG, "drawListingSeller:=> "+entry.get("name")+"" );
                 fieldsTable.addView(fieldRow, index);
                 index++;
             }
