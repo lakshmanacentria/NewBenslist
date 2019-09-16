@@ -1,16 +1,23 @@
 package com.acentria.benslist;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.acentria.benslist.controllers.AccountArea;
 import com.acentria.benslist.controllers.SavedSearch;
+import com.acentria.benslist.preferences.Preferences;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -20,18 +27,32 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cz.msebera.android.httpclient.Header;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import static com.facebook.GraphRequest.TAG;
 
 public class Account {
 
+    private static final String TAG = "Account=> ";
     public static int lastRequestTotalAccounts;
 
     public static HashMap<String, String> accountData = new HashMap<String, String>();
@@ -42,6 +63,7 @@ public class Account {
     public static String email_field_key = "account_email";
     public static List<String> abilities;
     public static List<String> onMapFields = new ArrayList<String>();
+    private static ProgressDialog progressDialog;
 
     public static void login(String passwordHash, LinearLayout login_form, LinearLayout profile_layer) {
         Account.loggedIn = true;
@@ -79,6 +101,7 @@ public class Account {
                     tmp_field.put("key", field_node.getAttribute("key"));
                     tmp_field.put("type", field_node.getAttribute("type"));
                     tmp_field.put("name", Config.convertChars(field_node.getTextContent()));
+                    Log.e("Account=> ", "fetchAccountData: temp_field " + tmp_field);
                     accountFields.add(tmp_field);
                 }
             } else if (node.getTagName().equals("statistics")) {
@@ -139,14 +162,243 @@ public class Account {
 
             TextView username_caption = (TextView) AccountArea.profileTab.findViewById(R.id.username);
             username_caption.setText(accountData.get("username"));
-            Log.e("populateProfileTab: ", accountData.get("username")+"\tAccountid "+ accountData.get("id")+"\tusertype "+accountData.get("type_name"));
+            Log.e("populateProfileTab: ", accountData.get("username") + "\tAccountid " + accountData.get("id") + "\tusertype " + accountData.get("type_name")
+
+                    + "phone" + accountData.get("phone"));
+
             TextView type_name = (TextView) AccountArea.profileTab.findViewById(R.id.type_name);
             type_name.setText(accountData.get("type_name"));
+            /*implements email and phone show and hide*/
+            TextView tv_email = AccountArea.profileTab.findViewById(R.id.tv_email);
+            TextView tv_phone = AccountArea.profileTab.findViewById(R.id.tv_phone);
+            ToggleButton email_togglebtn = AccountArea.profileTab.findViewById(R.id.email_togglebtn);
+            ToggleButton phone_togglebtn = AccountArea.profileTab.findViewById(R.id.phone_togglebtn);
+
+            tv_email.setText("Email : " + accountData.get("mail"));
+//            final LinearLayout phone = (LinearLayout) Config.context.getLayoutInflater()
+//                    .inflate(R.layout.field_phone, null);
+            Utils.getSPConfig("accountUsername", "");
+            Log.e("Account", "populateProfileTab: Convert Phone " + Utils.getSPConfig("PhoneConvert", ""));
+            tv_phone.setText("Phone : " + Utils.getSPConfig("PhoneConvert", ""));
 
 
-            // build statistics block
+            progressDialog = new ProgressDialog(Config.context);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setMessage("Loading...");
+            if (Utils.isOnline(Config.context)) {
+                chechk_email_hide_show_status(email_togglebtn, phone_togglebtn);
+            } else {
+                Toast.makeText(Config.context, "Make sure your device connect to internet", Toast.LENGTH_LONG).show();
+
+            }
+
+//            call_hidephoneApi(phone_togglebtn.isChecked(), 1);
+
+            email_togglebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        Log.e("Account", "email_togglebtn:check " + isChecked);
+                        call_hideEmailApi((ToggleButton) buttonView, "on");
+
+                    } else {
+                        /*unchecked*/
+                        call_hideEmailApi((ToggleButton) buttonView, "off");
+                        Log.e("Account", "email_togglebtn:uncheck " + isChecked);
+                    }
+                }
+            });
+
+            phone_togglebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        call_hidephoneApi((ToggleButton) buttonView, "on");
+
+                        Log.e("Account", "phone_togglebtn:check " + isChecked);
+                    } else {
+                        /*unchecked*/
+                        call_hidephoneApi((ToggleButton) buttonView, "off");
+                        Log.e("Account", "phone_togglebtn:uncheck " + isChecked);
+                    }
+                }
+            });
+            /*.....................close*/
+
             buildStat();
         }
+    }
+
+    private static void chechk_email_hide_show_status(final ToggleButton emailtoggleBtn, final ToggleButton phone_toggleBtn) {
+        if (accountData.get("id") == null) {
+            return;
+        }
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("userId", accountData.get("id"))
+                .build();
+        Request request = new Request.Builder()
+                /* .url(BASE_URL + route)*/
+                .url("https://www.benslist.com/Api/" + "chechk_email_hide_show_status.inc.php")
+                .post(requestBody)
+                .build();
+        progressDialog.show();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Config.context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        Toast.makeText(Config.context, "Something went wrong", Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "chechk_email_hide_show_status onFailure: ");
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                progressDialog.dismiss();
+                final String mresponse = response.body().string();
+                Log.e(TAG, "onResponse: " + mresponse);
+                Config.context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        if (!mresponse.equalsIgnoreCase("{}")) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(mresponse);
+//                                phoneSatus=jsonObject.has("phone_status")?jsonObject.getString("phone_status"):"0";
+                                String phoneStatus = jsonObject.getString("phone_status");
+                                String email_status = jsonObject.getString("email_status");
+                                Log.e(TAG, "run:Phone " + phoneStatus);
+                                Log.e(TAG, "run:Email " + email_status);
+
+                                if (phoneStatus.equalsIgnoreCase("0")) {
+                                    phone_toggleBtn.setChecked(false);
+
+                                } else {
+                                    phone_toggleBtn.setChecked(true);
+
+                                }
+                                if (email_status.equalsIgnoreCase("0")) {
+                                    emailtoggleBtn.setChecked(false);
+                                } else {
+                                    emailtoggleBtn.setChecked(true);
+                                }
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Config.context.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(Config.context, "Something went wrong", Toast.LENGTH_LONG).show();
+                                    Log.e(TAG, "chechk_email_hide_show_status unsucess: ");
+                                }
+                            });
+                        }
+
+                    }
+                });
+
+
+            }
+        });
+
+
+    }
+
+
+    private static void call_hideEmailApi(ToggleButton email_toggleBtn, String stateValue) {
+        Log.e(TAG, "call_hideEmailApi: " + email_toggleBtn.isChecked() + "pass int value" + stateValue);
+        if (accountData.get("id") == null) {
+            return;
+        }
+        OkHttpClient okHttpClient = new OkHttpClient();
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("status", stateValue)
+                .addFormDataPart("userId", accountData.get("id"))
+                .build();
+        Request request = new Request.Builder()
+                /* .url(BASE_URL + route)*/
+                .url("https://www.benslist.com/Api/" + "phone_hide_show.inc.php")
+                .post(requestBody)
+                .build();
+        progressDialog.show();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Config.context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        Toast.makeText(Config.context, "Something went wrong", Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "call_hideEmailApi onFailure: ");
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                progressDialog.dismiss();
+                String mresponse = response.body().string();
+                Log.e(TAG, "onResponse: " + mresponse);
+
+
+            }
+        });
+
+
+    }
+
+
+    private static void call_hidephoneApi(ToggleButton buttonView, String stateValue) {
+        Log.e(TAG, "call_hideEmailApi: " + buttonView.isChecked() + "pass int value" + stateValue);
+        if (accountData.get("id") == null) {
+            return;
+        }
+        OkHttpClient okHttpClient = new OkHttpClient();
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("status", stateValue)
+                .addFormDataPart("userId", accountData.get("id"))
+                .build();
+        Request request = new Request.Builder()
+                /* .url(BASE_URL + route)*/
+                .url("https://www.benslist.com/Api/" + "email_hide_show.inc.php")
+                .post(requestBody)
+                .build();
+        progressDialog.show();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Config.context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        Toast.makeText(Config.context, "Something went wrong", Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "call_hideEmailApi onFailure: ");
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                progressDialog.dismiss();
+                String mresponse = response.body().string();
+                Log.e(TAG, "onResponse: " + mresponse);
+
+
+            }
+        });
+
+
     }
 
     private static void buildStat() {

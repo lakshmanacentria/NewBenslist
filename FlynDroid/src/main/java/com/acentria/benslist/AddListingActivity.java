@@ -163,7 +163,7 @@ public class AddListingActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case IMAGE_RETURN_CODE:
-                Log.d("FD", resultCode + "" + data);
+                Log.d(TAG, resultCode + "" + data);
                 Image.manageSelectedImage(resultCode, data, instance);
                 break;
 

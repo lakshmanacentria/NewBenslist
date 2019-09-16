@@ -4,120 +4,205 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
-    
+
     <ScrollView
         android:layout_width="fill_parent"
-    	android:layout_height="fill_parent">
-    	
-        <LinearLayout
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-		    android:orientation="vertical">
+        android:layout_height="fill_parent">
 
-			<LinearLayout
-			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:orientation="horizontal"
-			    style="@style/profile_header_bg">
-			    
-			    <RelativeLayout
-			        android:layout_width="wrap_content"
-			        android:layout_height="105dp"
-			        android:layout_gravity="bottom"
-			        android:gravity="bottom">
-			    
-			        <com.acentria.benslist.elements.FlyImageView
-			            android:id="@+id/profileImage"
-			            android:layout_width="105dp"
-				        android:layout_height="105dp"
-				        android:clickable="true"
-				        android:src="@mipmap/seller_no_photo"
-				        android:background="@drawable/listing_thumbnail" />
-			        
-			        <com.acentria.benslist.elements.FlyTextView
-			            android:layout_width="fill_parent"
-			            android:layout_height="wrap_content"
-			            android:layout_alignParentBottom="true"
-			            android:layout_alignRight="@+id/profileImage"
-						android:layout_alignEnd="@+id/profileImage"
-			            android:gravity="center"
-			            android:text="edit"
-			            android:layout_margin="2dip"
-			            android:layout_marginTop="0dip"
-			            style="@style/edit_plate" />
-			        
-			    </RelativeLayout>
-			    
-			    <LinearLayout
-				    android:layout_width="0dip"
-				    android:layout_height="fill_parent"
-				    android:layout_weight="1"
-				    android:paddingLeft="15dip"
-					android:paddingStart="15dip"
-				    android:orientation="vertical">
-			        
-			         <LinearLayout
-					    android:layout_width="fill_parent"
-					    android:layout_height="0dip"
-					    android:layout_weight="1"
-					    android:orientation="vertical">
-					    
-				        <TextView
-							android:id="@+id/username"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-					        style="@style/black_title" />
-				        
-				        <TextView
-							android:id="@+id/type_name"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-					        style="@style/middle_name" />
-				        
-			        </LinearLayout>
-			        
-					<LinearLayout
-					    android:layout_width="fill_parent"
-					    android:layout_height="wrap_content"
-						android:weightSum="2"
-					    android:orientation="horizontal">
-				        
-					   <com.acentria.benslist.elements.FlyButton
-							android:id="@+id/editProfile"
-							android:layout_width="wrap_content"
-							android:layout_height="44dp"
-						   android:layout_weight=".5"
-							android:layout_marginTop="15dip"
-							android:text="edit_profile"
-							android:background="@drawable/shape_button"
-							style="@style/profile_button" />
-						<com.acentria.benslist.elements.FlyButton
-							android:id="@+id/btn_chat"
-							android:layout_marginLeft="3dp"
-							android:layout_width="wrap_content"
-							android:layout_height="44dp"
-							android:layout_marginTop="15dip"
-							android:layout_weight="1.5"
-							android:text="Chat"
-							android:background="@drawable/shape_button"
-							style="@style/profile_button" />
-					    
-					</LinearLayout>
-			        
-				</LinearLayout>
-			    
-			</LinearLayout>
-			
-			<LinearLayout
-			    android:id="@+id/statistics_cont"
-			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:orientation="vertical"
-			    android:paddingBottom="12dip"
-			    style="@style/content_side_padding" />
-		
-		</LinearLayout>
-	
-	</ScrollView>
-    
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                style="@style/profile_header_bg"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="105dp"
+                    android:layout_gravity="bottom"
+                    android:gravity="bottom">
+
+                    <com.acentria.benslist.elements.FlyImageView
+                        android:id="@+id/profileImage"
+                        android:layout_width="105dp"
+                        android:layout_height="105dp"
+                        android:background="@drawable/listing_thumbnail"
+                        android:clickable="true"
+                        android:src="@mipmap/seller_no_photo" />
+
+                    <com.acentria.benslist.elements.FlyTextView
+                        style="@style/edit_plate"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignEnd="@+id/profileImage"
+                        android:layout_alignRight="@+id/profileImage"
+                        android:layout_alignParentBottom="true"
+                        android:layout_margin="2dip"
+                        android:layout_marginTop="0dip"
+                        android:gravity="center"
+                        android:text="edit" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="0dip"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="15dip"
+                    android:paddingLeft="15dip">
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/username"
+                            style="@style/black_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:id="@+id/type_name"
+                            style="@style/middle_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <com.acentria.benslist.elements.FlyButton
+                            android:id="@+id/editProfile"
+                            style="@style/profile_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="15dip"
+                            android:layout_weight=".5"
+                            android:background="@drawable/shape_button"
+                            android:text="edit_profile" />
+
+                        <com.acentria.benslist.elements.FlyButton
+                            android:id="@+id/btn_chat"
+                            style="@style/profile_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:layout_marginLeft="3dp"
+                            android:layout_marginTop="15dip"
+                            android:layout_weight="1.5"
+                            android:background="@drawable/shape_button"
+                            android:text="Chat" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+            <!--new implement email and phone show or hide-->
+            <RelativeLayout
+                style="@style/content_side_padding"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="12dip">
+
+                <TextView
+                    android:id="@+id/tv_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="left"
+                    android:singleLine="true"
+                    android:text="email"
+                    android:layout_marginRight="10dp"
+                    android:textSize="16sp" />
+
+                <ToggleButton
+
+                    android:id="@+id/email_togglebtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerInParent="true"
+                    android:drawableRight="@mipmap/ic_action_remove_dark"
+                    android:drawablePadding="10dp"
+                    android:gravity="center"
+                    android:textColor="#000"
+                    android:textOff="hide"
+                    android:textOn="show" />
+
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="3px"
+                android:background="@android:color/darker_gray" />
+
+            <RelativeLayout
+                style="@style/content_side_padding"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="12dip">
+
+
+                <TextView
+                    android:id="@+id/tv_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="left"
+                    android:singleLine="true"
+                    android:text="phone"
+                    android:layout_marginRight="10dp"
+                    android:textSize="16sp" />
+
+                <ToggleButton
+                    android:id="@+id/phone_togglebtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerInParent="true"
+                    android:drawableRight="@mipmap/ic_action_remove_dark"
+                    android:drawablePadding="10dp"
+                    android:gravity="center"
+                    android:textColor="#000"
+                    android:textOff="hide"
+                    android:textOn="show" />
+
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="3px"
+                android:background="@android:color/darker_gray" />
+            <!--close-->
+
+            <LinearLayout
+                android:id="@+id/statistics_cont"
+                style="@style/content_side_padding"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="12dip" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
 </LinearLayout>

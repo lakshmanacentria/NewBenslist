@@ -634,10 +634,6 @@ public class ListingDetailsActivity extends AppCompatActivity implements OnMapRe
                     Log.e(TAG, "prepareDetails: size " + sellerFields.size());
                     for (int i = 0; i < sellerFields.size(); i++) {
                         Log.e(TAG, "prepareDetails: " + sellerFields.get(i));
-//                        for(Map<String,String> entry:sellerFields){
-//                            entry.get("email");
-//
-//                        }
                     }
 
                 }
